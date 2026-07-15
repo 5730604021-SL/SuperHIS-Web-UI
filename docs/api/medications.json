@@ -1,0 +1,1109 @@
+{
+ "module": "medications",
+ "note": "Extracted from SuperHIS FastAPI openapi.json. Base URL via Next proxy: /api/his",
+ "paths": {
+  "/drug": {
+   "get": {
+    "tags": [
+     "Drug"
+    ],
+    "summary": "Get Drugs",
+    "description": "ค้นหายาจาก Odoo — ข้อมูลมาสดจาก Odoo (product.template) ที่ถูก register drug_category ไว้แล้วเท่านั้น\n(ยาที่ยังไม่ได้ register ผ่าน POST /drug/category/register จะไม่ปรากฏ)\ndefault คืนเฉพาะยาที่ is_active=true, ใช้ see_all=true เพื่อรวมยาที่ปิดใช้งานแล้ว\nresponse แนบ drug_category_name และ usage_category จากตาราง his_drug_category มาด้วย",
+    "operationId": "list_drugs",
+    "parameters": [
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 100,
+       "description": "จำนวนรายการสูงสุดที่คืนต่อครั้ง",
+       "default": 20,
+       "title": "Limit"
+      },
+      "description": "จำนวนรายการสูงสุดที่คืนต่อครั้ง"
+     },
+     {
+      "name": "offset",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "description": "จำนวนรายการที่ข้ามจากต้นรายการ (ใช้แบ่งหน้า)",
+       "default": 0,
+       "title": "Offset"
+      },
+      "description": "จำนวนรายการที่ข้ามจากต้นรายการ (ใช้แบ่งหน้า)"
+     },
+     {
+      "name": "see_all",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "boolean",
+       "description": "true = รวมสินค้าที่ is_active=false, false = เฉพาะ is_active=true",
+       "default": false,
+       "title": "See All"
+      },
+      "description": "true = รวมสินค้าที่ is_active=false, false = เฉพาะ is_active=true"
+     },
+     {
+      "name": "search",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "ค้นหาแบบรวม — ตรวจทั้งชื่อ/search_terms ของยา และชื่อ/search_term ของ drug_category (เจอหมวดหมู่ → คืนยาทุกตัวในหมวดนั้น)",
+       "title": "Search"
+      },
+      "description": "ค้นหาแบบรวม — ตรวจทั้งชื่อ/search_terms ของยา และชื่อ/search_term ของ drug_category (เจอหมวดหมู่ → คืนยาทุกตัวในหมวดนั้น)"
+     },
+     {
+      "name": "drug_category_code",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตามรหัสหมวดหมู่ยา (exact match)",
+       "title": "Drug Category Code"
+      },
+      "description": "กรองตามรหัสหมวดหมู่ยา (exact match)"
+     },
+     {
+      "name": "medical_category",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม medical_category (exact match)",
+       "title": "Medical Category"
+      },
+      "description": "กรองตาม medical_category (exact match)"
+     },
+     {
+      "name": "insurance_category",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม insurance_category (exact match)",
+       "title": "Insurance Category"
+      },
+      "description": "กรองตาม insurance_category (exact match)"
+     },
+     {
+      "name": "billing_category",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม billing_category (exact match)",
+       "title": "Billing Category"
+      },
+      "description": "กรองตาม billing_category (exact match)"
+     },
+     {
+      "name": "stock_category",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม stock_category (exact match)",
+       "title": "Stock Category"
+      },
+      "description": "กรองตาม stock_category (exact match)"
+     },
+     {
+      "name": "sale_category",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม sale_category (exact match)",
+       "title": "Sale Category"
+      },
+      "description": "กรองตาม sale_category (exact match)"
+     },
+     {
+      "name": "roles_category",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม roles_category (exact match)",
+       "title": "Roles Category"
+      },
+      "description": "กรองตาม roles_category (exact match)"
+     },
+     {
+      "name": "unit_of_use",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตามหน่วยใช้ยา unit_of_use (exact match)",
+       "title": "Unit Of Use"
+      },
+      "description": "กรองตามหน่วยใช้ยา unit_of_use (exact match)"
+     },
+     {
+      "name": "sort_by",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "description": "field ที่ใช้ sort: default_code, id, list_price, name, qty_available, standard_price",
+       "default": "id",
+       "title": "Sort By"
+      },
+      "description": "field ที่ใช้ sort: default_code, id, list_price, name, qty_available, standard_price"
+     },
+     {
+      "name": "sort_order",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "enum": [
+        "asc",
+        "desc"
+       ],
+       "type": "string",
+       "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย",
+       "default": "desc",
+       "title": "Sort Order"
+      },
+      "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/drug/category": {
+   "post": {
+    "tags": [
+     "Drug"
+    ],
+    "summary": "Create Drug Category",
+    "operationId": "create_drug_category_drug_category_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DrugCategoryCreate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/drug/category/register": {
+   "post": {
+    "tags": [
+     "Drug"
+    ],
+    "summary": "Register Products Drug Category",
+    "operationId": "register_products_drug_category_drug_category_register_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DrugCategoryRegisterProducts"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/medication": {
+   "post": {
+    "tags": [
+     "Medication"
+    ],
+    "summary": "Create Medication Order",
+    "description": "สร้างใบสั่งยา OPD ผูกกับ encounter — เป็นบันทึกเชิงคลินิกเท่านั้น ไม่แตะ billing/stock\n\nflow จ่ายยา (ทาง A): frontend เรียก POST /order พร้อม medication_order_id (stamp ลง\npatient_inventory) → ตัด stock ผ่าน POST /inventory/deduct → อัปเดตสถานะใบสั่งยา\nผ่าน PATCH /medication/status เป็น dispensed\n\nแพ้ยา: เช็คกับ his_allergy_info แล้วคืนใน allergy_warnings — ไม่ block การสั่ง",
+    "operationId": "create_medication_order_medication_post",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/MedicationOrderCreate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "get": {
+    "tags": [
+     "Medication"
+    ],
+    "summary": "Get Medication Orders",
+    "description": "ค้นหาใบสั่งยา OPD — ใช้เมื่อต้องการดูรายการสั่งยาข้ามหลาย visit หรือกรองตามแพทย์/สถานะ\nแต่ละ order มี items ซ้อนอยู่ใน field \"items\" (แนบมาในครั้งเดียว ไม่ N+1)\nถ้าต้องการข้อมูลยาของ visit เดียว ใช้ GET /medication/by-vn/{vn} แทน เพราะจัดโครงซ้อน encounter → orders → items ให้แล้ว\nไม่มี filter status default — คืนทุกสถานะถ้าไม่ระบุ",
+    "operationId": "list_medication_orders",
+    "parameters": [
+     {
+      "name": "medication_order_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "รหัสใบสั่งยา (exact match) เช่น MO-20250101-0001",
+       "title": "Medication Order Id"
+      },
+      "description": "รหัสใบสั่งยา (exact match) เช่น MO-20250101-0001"
+     },
+     {
+      "name": "encounter_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม encounter_id (exact match)",
+       "title": "Encounter Id"
+      },
+      "description": "กรองตาม encounter_id (exact match)"
+     },
+     {
+      "name": "vn",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตามเลข Visit Number (exact match)",
+       "title": "Vn"
+      },
+      "description": "กรองตามเลข Visit Number (exact match)"
+     },
+     {
+      "name": "hn",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตามเลขประจำตัวผู้ป่วย (exact match)",
+       "title": "Hn"
+      },
+      "description": "กรองตามเลขประจำตัวผู้ป่วย (exact match)"
+     },
+     {
+      "name": "doctor_code",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตามรหัสแพทย์ผู้สั่งยา (exact match)",
+       "title": "Doctor Code"
+      },
+      "description": "กรองตามรหัสแพทย์ผู้สั่งยา (exact match)"
+     },
+     {
+      "name": "status",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "enum": [
+          "ordered",
+          "dispensed",
+          "cancelled"
+         ],
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "สถานะใบสั่งยา: ordered = รอจ่าย, dispensed = จ่ายแล้ว, cancelled = ยกเลิก (ไม่ระบุ = คืนทุกสถานะ)",
+       "title": "Status"
+      },
+      "description": "สถานะใบสั่งยา: ordered = รอจ่าย, dispensed = จ่ายแล้ว, cancelled = ยกเลิก (ไม่ระบุ = คืนทุกสถานะ)"
+     },
+     {
+      "name": "date_from",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "วันที่สั่งตั้งแต่ (YYYY-MM-DD)",
+       "title": "Date From"
+      },
+      "description": "วันที่สั่งตั้งแต่ (YYYY-MM-DD)"
+     },
+     {
+      "name": "date_to",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "วันที่สั่งถึง (YYYY-MM-DD)",
+       "title": "Date To"
+      },
+      "description": "วันที่สั่งถึง (YYYY-MM-DD)"
+     },
+     {
+      "name": "sort_by",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "description": "field ที่ใช้ sort: created_date, doctor_code, encounter_id, hn, medication_order_id, status, updated_date, vn",
+       "default": "created_date",
+       "title": "Sort By"
+      },
+      "description": "field ที่ใช้ sort: created_date, doctor_code, encounter_id, hn, medication_order_id, status, updated_date, vn"
+     },
+     {
+      "name": "sort_order",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "enum": [
+        "asc",
+        "desc"
+       ],
+       "type": "string",
+       "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย",
+       "default": "desc",
+       "title": "Sort Order"
+      },
+      "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/medication/by-vn/{vn}": {
+   "get": {
+    "tags": [
+     "Medication"
+    ],
+    "summary": "Get Medication Orders By Vn",
+    "description": "ใบสั่งยาทั้งหมดของ visit เดียว จัดเป็นโครงซ้อน encounter → medication_orders → items\n(คืนเฉพาะ encounter ที่มีใบสั่งยาตรงตามเงื่อนไข — encounter ที่ไม่มีใบสั่งยาไม่ติดมา)",
+    "operationId": "get_medication_orders_by_vn",
+    "parameters": [
+     {
+      "name": "vn",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Vn"
+      }
+     },
+     {
+      "name": "status",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "enum": [
+          "ordered",
+          "dispensed",
+          "cancelled"
+         ],
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองสถานะใบสั่งยา — หน้าห้องยาใช้ ?status=ordered เพื่อดูเฉพาะยาที่รอจ่าย",
+       "title": "Status"
+      },
+      "description": "กรองสถานะใบสั่งยา — หน้าห้องยาใช้ ?status=ordered เพื่อดูเฉพาะยาที่รอจ่าย"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/medication/{medication_order_id}": {
+   "put": {
+    "tags": [
+     "Medication"
+    ],
+    "summary": "Update Medication Order",
+    "description": "แก้ใบสั่งยาที่ยังสถานะ ordered เท่านั้น — items ชุดใหม่แทนที่ของเดิมทั้งชุด\n(dispensed/cancelled แก้ไม่ได้: ยาจ่ายแล้ว/ยกเลิกแล้ว ต้องสั่งใหม่เป็นใบใหม่)\nเช็คแพ้ยาซ้ำกับรายการชุดใหม่และคืน allergy_warnings เหมือนตอนสร้าง",
+    "operationId": "update_medication_order_medication__medication_order_id__put",
+    "parameters": [
+     {
+      "name": "medication_order_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Medication Order Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/MedicationOrderUpdate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/medication/status": {
+   "patch": {
+    "tags": [
+     "Medication"
+    ],
+    "summary": "Update Medication Status",
+    "description": "เปลี่ยนสถานะใบสั่งยาตาม state machine: ordered → dispensed | cancelled เท่านั้น\n(dispensed แล้วยกเลิกไม่ได้ — ยาออกจากห้องยาไปแล้ว)",
+    "operationId": "update_medication_status_medication_status_patch",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/MedicationStatusUpdate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "schemas": {
+  "DrugCategoryCreate": {
+   "properties": {
+    "drug_category_name": {
+     "type": "string",
+     "title": "Drug Category Name",
+     "description": "ชื่อหมวดหมู่ยา (required)"
+    },
+    "usage_category": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Usage Category",
+     "description": "ยาน้ำ, ยาเม็ด, ยาฉีด, ยากิน, อื่นๆ"
+    },
+    "condition": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Condition"
+    },
+    "detail": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Detail"
+    },
+    "note": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Note"
+    }
+   },
+   "type": "object",
+   "required": [
+    "drug_category_name"
+   ],
+   "title": "DrugCategoryCreate"
+  },
+  "DrugCategoryRegisterProducts": {
+   "properties": {
+    "drug_category_code": {
+     "type": "string",
+     "title": "Drug Category Code",
+     "description": "รหัสหมวดหมู่ยา (ต้องมีอยู่ใน his_drug_category แล้ว)"
+    },
+    "product_id": {
+     "items": {
+      "type": "integer"
+     },
+     "type": "array",
+     "minItems": 1,
+     "title": "Product Id",
+     "description": "Odoo product.template id ที่ต้องการกำหนดหมวดหมู่ยา"
+    }
+   },
+   "type": "object",
+   "required": [
+    "drug_category_code",
+    "product_id"
+   ],
+   "title": "DrugCategoryRegisterProducts"
+  },
+  "HTTPValidationError": {
+   "properties": {
+    "detail": {
+     "items": {
+      "$ref": "#/components/schemas/ValidationError"
+     },
+     "type": "array",
+     "title": "Detail"
+    }
+   },
+   "type": "object",
+   "title": "HTTPValidationError"
+  },
+  "MedicationItemCreate": {
+   "properties": {
+    "product_id": {
+     "type": "integer",
+     "title": "Product Id",
+     "description": "Odoo product.product id ของยา"
+    },
+    "quantity": {
+     "type": "number",
+     "exclusiveMinimum": 0.0,
+     "title": "Quantity",
+     "description": "จำนวนรวมที่สั่ง ใน 'หน่วยใช้จริง' (unit_of_use) เช่น 30 เม็ด / 80 cc"
+    },
+    "dose": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Dose",
+     "description": "ครั้งละ เช่น '1 เม็ด' (เผื่อพิมพ์ฉลากยาในอนาคต)"
+    },
+    "frequency": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Frequency",
+     "description": "เช่น 'วันละ 3 ครั้ง'"
+    },
+    "timing": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Timing",
+     "description": "เช่น 'หลังอาหาร'"
+    },
+    "route": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Route",
+     "description": "เช่น 'รับประทาน'"
+    },
+    "duration_days": {
+     "anyOf": [
+      {
+       "type": "integer",
+       "exclusiveMinimum": 0.0
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Duration Days",
+     "description": "จำนวนวันที่ใช้"
+    },
+    "instruction": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Instruction",
+     "description": "วิธีใช้/คำแนะนำเพิ่มเติม (freetext)"
+    }
+   },
+   "type": "object",
+   "required": [
+    "product_id",
+    "quantity"
+   ],
+   "title": "MedicationItemCreate"
+  },
+  "MedicationOrderCreate": {
+   "properties": {
+    "encounter_id": {
+     "type": "integer",
+     "title": "Encounter Id",
+     "description": "Encounter ที่สั่งยา (required)"
+    },
+    "doctor_code": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Doctor Code",
+     "description": "ผู้สั่งยา (ไม่ระบุ = ใช้ doctor_code ของ encounter)"
+    },
+    "note": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Note",
+     "description": "หมายเหตุใบสั่งยา"
+    },
+    "created_by": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Created By",
+     "description": "ผู้ทำรายการ (optional)"
+    },
+    "items": {
+     "items": {
+      "$ref": "#/components/schemas/MedicationItemCreate"
+     },
+     "type": "array",
+     "minItems": 1,
+     "title": "Items",
+     "description": "รายการยาที่สั่ง"
+    }
+   },
+   "type": "object",
+   "required": [
+    "encounter_id",
+    "items"
+   ],
+   "title": "MedicationOrderCreate"
+  },
+  "MedicationOrderStatus": {
+   "type": "string",
+   "enum": [
+    "dispensed",
+    "cancelled"
+   ],
+   "title": "MedicationOrderStatus"
+  },
+  "MedicationOrderUpdate": {
+   "properties": {
+    "doctor_code": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Doctor Code",
+     "description": "ไม่ระบุ = คงค่าเดิม"
+    },
+    "note": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Note",
+     "description": "ไม่ระบุ = คงค่าเดิม"
+    },
+    "items": {
+     "items": {
+      "$ref": "#/components/schemas/MedicationItemCreate"
+     },
+     "type": "array",
+     "minItems": 1,
+     "title": "Items",
+     "description": "รายการยาชุดใหม่ (แทนที่ของเดิมทั้งหมด)"
+    }
+   },
+   "type": "object",
+   "required": [
+    "items"
+   ],
+   "title": "MedicationOrderUpdate",
+   "description": "แก้ใบสั่งยาที่ยังสถานะ ordered — items ชุดใหม่แทนที่ของเดิมทั้งชุด"
+  },
+  "MedicationStatusUpdate": {
+   "properties": {
+    "medication_order_id": {
+     "type": "string",
+     "title": "Medication Order Id",
+     "description": "ใบสั่งยาที่ต้องการเปลี่ยนสถานะ"
+    },
+    "status": {
+     "$ref": "#/components/schemas/MedicationOrderStatus",
+     "description": "สถานะใหม่ — เปลี่ยนได้เฉพาะจาก ordered เท่านั้น"
+    }
+   },
+   "type": "object",
+   "required": [
+    "medication_order_id",
+    "status"
+   ],
+   "title": "MedicationStatusUpdate"
+  },
+  "ValidationError": {
+   "properties": {
+    "loc": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "integer"
+       }
+      ]
+     },
+     "type": "array",
+     "title": "Location"
+    },
+    "msg": {
+     "type": "string",
+     "title": "Message"
+    },
+    "type": {
+     "type": "string",
+     "title": "Error Type"
+    },
+    "input": {
+     "title": "Input"
+    },
+    "ctx": {
+     "type": "object",
+     "title": "Context"
+    }
+   },
+   "type": "object",
+   "required": [
+    "loc",
+    "msg",
+    "type"
+   ],
+   "title": "ValidationError"
+  }
+ }
+}

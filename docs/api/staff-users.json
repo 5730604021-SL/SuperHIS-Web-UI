@@ -1,0 +1,1400 @@
+{
+ "module": "staff-users",
+ "note": "Extracted from SuperHIS FastAPI openapi.json. Base URL via Next proxy: /api/his",
+ "paths": {
+  "/staff": {
+   "post": {
+    "tags": [
+     "Staff"
+    ],
+    "summary": "Create Staff",
+    "description": "เพิ่ม staff ใหม่ของคลินิก — staff_code ระบบ generate ให้เอง (ST-0001) คืนกลับใน response,\nstaff ที่เป็นหมอ (role = doctor) ต้องระบุ doctor_code เพื่อโยงเข้ากับตารางหมอเสมอ\n(ถ้าหมอยังไม่อยู่ในระบบให้ POST /doctor/register ก่อน)",
+    "operationId": "create_staff",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/StaffCreate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "get": {
+    "tags": [
+     "Staff"
+    ],
+    "summary": "Get Staff",
+    "description": "ค้นหา/ดูรายชื่อ staff ของคลินิก — default แสดงเฉพาะคนที่ยังทำงานอยู่ (active),\nstaff ที่เป็นหมอจะได้ doctor_code จากตารางหมอแนบมาด้วย",
+    "operationId": "list_staff",
+    "parameters": [
+     {
+      "name": "staff_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม staff_id (exact match)",
+       "title": "Staff Id"
+      },
+      "description": "กรองตาม staff_id (exact match)"
+     },
+     {
+      "name": "staff_code",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "รหัสพนักงาน (partial match)",
+       "title": "Staff Code"
+      },
+      "description": "รหัสพนักงาน (partial match)"
+     },
+     {
+      "name": "pname",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "คำนำหน้าชื่อ (partial match)",
+       "title": "Pname"
+      },
+      "description": "คำนำหน้าชื่อ (partial match)"
+     },
+     {
+      "name": "firstname",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "ชื่อ (partial match)",
+       "title": "Firstname"
+      },
+      "description": "ชื่อ (partial match)"
+     },
+     {
+      "name": "lastname",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "นามสกุล (partial match)",
+       "title": "Lastname"
+      },
+      "description": "นามสกุล (partial match)"
+     },
+     {
+      "name": "role",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "enum": [
+          "doctor",
+          "nurse",
+          "nurse_aide",
+          "pharmacist",
+          "therapist",
+          "receptionist",
+          "cashier",
+          "admin",
+          "other"
+         ],
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "ตำแหน่งงาน: doctor, nurse, nurse_aide, pharmacist, therapist, receptionist, cashier, admin, other",
+       "title": "Role"
+      },
+      "description": "ตำแหน่งงาน: doctor, nurse, nurse_aide, pharmacist, therapist, receptionist, cashier, admin, other"
+     },
+     {
+      "name": "department",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "แผนก (partial match)",
+       "title": "Department"
+      },
+      "description": "แผนก (partial match)"
+     },
+     {
+      "name": "gender",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "เพศ: 1 = ชาย, 2 = หญิง",
+       "title": "Gender"
+      },
+      "description": "เพศ: 1 = ชาย, 2 = หญิง"
+     },
+     {
+      "name": "phone_no",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "เบอร์โทรศัพท์ (partial match)",
+       "title": "Phone No"
+      },
+      "description": "เบอร์โทรศัพท์ (partial match)"
+     },
+     {
+      "name": "email",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "อีเมล (partial match)",
+       "title": "Email"
+      },
+      "description": "อีเมล (partial match)"
+     },
+     {
+      "name": "doctor_code",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "รหัสแพทย์ที่โยงไว้ (partial match — ได้เฉพาะ staff ที่เป็นหมอ)",
+       "title": "Doctor Code"
+      },
+      "description": "รหัสแพทย์ที่โยงไว้ (partial match — ได้เฉพาะ staff ที่เป็นหมอ)"
+     },
+     {
+      "name": "include_inactive",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "boolean",
+       "description": "true = รวม staff ที่ถูกปิดการใช้งาน (inactive) ด้วย",
+       "default": false,
+       "title": "Include Inactive"
+      },
+      "description": "true = รวม staff ที่ถูกปิดการใช้งาน (inactive) ด้วย"
+     },
+     {
+      "name": "created_from",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "สร้างตั้งแต่วันที่ (YYYY-MM-DD)",
+       "title": "Created From"
+      },
+      "description": "สร้างตั้งแต่วันที่ (YYYY-MM-DD)"
+     },
+     {
+      "name": "created_to",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "สร้างถึงวันที่ (YYYY-MM-DD)",
+       "title": "Created To"
+      },
+      "description": "สร้างถึงวันที่ (YYYY-MM-DD)"
+     },
+     {
+      "name": "sort_by",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "description": "field ที่ใช้ sort: created_date, department, firstname, gender, lastname, pname, resign_date, role, staff_code, staff_id, status",
+       "default": "created_date",
+       "title": "Sort By"
+      },
+      "description": "field ที่ใช้ sort: created_date, department, firstname, gender, lastname, pname, resign_date, role, staff_code, staff_id, status"
+     },
+     {
+      "name": "sort_order",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "enum": [
+        "asc",
+        "desc"
+       ],
+       "type": "string",
+       "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย",
+       "default": "desc",
+       "title": "Sort Order"
+      },
+      "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย"
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 100,
+       "description": "จำนวนรายการสูงสุดที่คืนต่อครั้ง",
+       "default": 20,
+       "title": "Limit"
+      },
+      "description": "จำนวนรายการสูงสุดที่คืนต่อครั้ง"
+     },
+     {
+      "name": "offset",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "description": "จำนวนรายการที่ข้ามจากต้นรายการ (ใช้แบ่งหน้า)",
+       "default": 0,
+       "title": "Offset"
+      },
+      "description": "จำนวนรายการที่ข้ามจากต้นรายการ (ใช้แบ่งหน้า)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/staff/{staff_id}": {
+   "get": {
+    "tags": [
+     "Staff"
+    ],
+    "summary": "Get Staff By Id",
+    "description": "ดูข้อมูล staff รายคน — ถ้าเป็นหมอ แนบรายละเอียดจากตารางหมอ (doctor) มาให้ใน field doctor ด้วย",
+    "operationId": "get_staff",
+    "parameters": [
+     {
+      "name": "staff_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Staff Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "put": {
+    "tags": [
+     "Staff"
+    ],
+    "summary": "Update Staff",
+    "description": "แก้ไขข้อมูล staff (ส่งเฉพาะ field ที่ต้องการแก้) — กติกาการโยงหมอ:\nเปลี่ยน role เป็น doctor ต้องส่ง doctor_code (ถ้ายังไม่เคยโยง),\nเปลี่ยน role ออกจาก doctor ระบบปลดลิงก์หมอให้เอง,\nส่ง doctor_code อย่างเดียวเพื่อย้ายลิงก์ไปหมอคนใหม่ได้เฉพาะ staff ที่เป็นหมออยู่แล้ว",
+    "operationId": "update_staff",
+    "parameters": [
+     {
+      "name": "staff_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Staff Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/StaffUpdate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "Staff"
+    ],
+    "summary": "Delete Staff",
+    "description": "ปิดการใช้งาน staff (soft delete — ไม่ลบข้อมูลจริงเพื่อคง audit trail):\nตั้ง status = inactive + ประทับ resign_date, เรียกซ้ำได้ (idempotent),\nเอากลับมาทำงานใหม่ด้วย PUT /staff/{staff_id} ส่ง status = active",
+    "operationId": "delete_staff",
+    "parameters": [
+     {
+      "name": "staff_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Staff Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/user-login": {
+   "post": {
+    "tags": [
+     "User Login"
+    ],
+    "summary": "Create User Login",
+    "description": "สร้าง user login ใหม่ — ต้องผูกกับ staff เสมอ (ระบุ staff_code จาก POST /staff)\nและ staff 1 คนมีได้ 1 user เท่านั้น, รหัสผ่านถูกเก็บเป็น hash (PBKDF2) ไม่เก็บ plaintext,\nrole เริ่มต้นคือ superuser (ทำได้ทุกอย่าง — ดู role ทั้งหมดที่ GET /user-login/roles)",
+    "operationId": "create_user_login",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/UserLoginCreate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "get": {
+    "tags": [
+     "User Login"
+    ],
+    "summary": "Get User Logins",
+    "description": "ค้นหา/ดูรายชื่อ user login — default แสดงเฉพาะ user ที่ยังใช้งานได้ (active),\nแนบข้อมูล staff เจ้าของ user มาด้วย (ไม่มี password hash ใน response เด็ดขาด)",
+    "operationId": "list_user_logins",
+    "parameters": [
+     {
+      "name": "username",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "ชื่อผู้ใช้ (partial match)",
+       "title": "Username"
+      },
+      "description": "ชื่อผู้ใช้ (partial match)"
+     },
+     {
+      "name": "staff_code",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "รหัสพนักงานเจ้าของ user (partial match)",
+       "title": "Staff Code"
+      },
+      "description": "รหัสพนักงานเจ้าของ user (partial match)"
+     },
+     {
+      "name": "user_role",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "const": "superuser",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม role: superuser",
+       "title": "User Role"
+      },
+      "description": "กรองตาม role: superuser"
+     },
+     {
+      "name": "include_inactive",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "boolean",
+       "description": "true = รวม user ที่ถูกระงับ (inactive) ด้วย",
+       "default": false,
+       "title": "Include Inactive"
+      },
+      "description": "true = รวม user ที่ถูกระงับ (inactive) ด้วย"
+     },
+     {
+      "name": "created_from",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "สร้างตั้งแต่วันที่ (YYYY-MM-DD)",
+       "title": "Created From"
+      },
+      "description": "สร้างตั้งแต่วันที่ (YYYY-MM-DD)"
+     },
+     {
+      "name": "created_to",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "สร้างถึงวันที่ (YYYY-MM-DD)",
+       "title": "Created To"
+      },
+      "description": "สร้างถึงวันที่ (YYYY-MM-DD)"
+     },
+     {
+      "name": "sort_by",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "description": "field ที่ใช้ sort: created_date, last_login, status, user_id, user_role, username",
+       "default": "created_date",
+       "title": "Sort By"
+      },
+      "description": "field ที่ใช้ sort: created_date, last_login, status, user_id, user_role, username"
+     },
+     {
+      "name": "sort_order",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "enum": [
+        "asc",
+        "desc"
+       ],
+       "type": "string",
+       "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย",
+       "default": "desc",
+       "title": "Sort Order"
+      },
+      "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย"
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 100,
+       "description": "จำนวนรายการสูงสุดที่คืนต่อครั้ง",
+       "default": 20,
+       "title": "Limit"
+      },
+      "description": "จำนวนรายการสูงสุดที่คืนต่อครั้ง"
+     },
+     {
+      "name": "offset",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "description": "จำนวนรายการที่ข้ามจากต้นรายการ (ใช้แบ่งหน้า)",
+       "default": 0,
+       "title": "Offset"
+      },
+      "description": "จำนวนรายการที่ข้ามจากต้นรายการ (ใช้แบ่งหน้า)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/user-login/roles": {
+   "get": {
+    "tags": [
+     "User Login"
+    ],
+    "summary": "Get User Roles",
+    "description": "role ทั้งหมดที่ระบบรองรับ พร้อมคำอธิบายและ permissions —\nตอนนี้มี superuser role เดียว (permissions = [\"*\"] ทำได้ทุกอย่าง)",
+    "operationId": "list_user_roles",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    }
+   }
+  },
+  "/user-login/verify": {
+   "post": {
+    "tags": [
+     "User Login"
+    ],
+    "summary": "Verify User Login",
+    "description": "ตรวจสอบ username/password อย่างเดียว (ไม่ออก token) — ถ้าต้องการ login จริง\nใช้ POST /auth/login แทน จะได้ Bearer token กลับไปด้วย,\nusername/password ผิดได้ 401, user ถูกระงับได้ 403",
+    "operationId": "verify_user_login",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/UserLoginVerify"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/user-login/{user_id}": {
+   "get": {
+    "tags": [
+     "User Login"
+    ],
+    "summary": "Get User Login By Id",
+    "description": "ดูข้อมูล user login รายคน (คืนทุกสถานะ) พร้อมข้อมูล staff เจ้าของ —\nไม่มี password hash ใน response",
+    "operationId": "get_user_login",
+    "parameters": [
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "User Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "put": {
+    "tags": [
+     "User Login"
+    ],
+    "summary": "Update User Login",
+    "description": "แก้ไข user login (ส่งเฉพาะ field ที่ต้องการแก้): เปลี่ยน username / รหัสผ่าน (hash ใหม่ให้) /\nrole / status — ย้าย user ไป staff คนอื่นไม่ได้ (ต้องปิด user เดิมแล้วสร้างใหม่),\nเปิด user ที่ถูกระงับกลับมาใช้งานด้วย status = active",
+    "operationId": "update_user_login",
+    "parameters": [
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "User Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/UserLoginUpdate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "User Login"
+    ],
+    "summary": "Delete User Login",
+    "description": "ระงับ user login (soft delete — คง audit trail): ตั้ง status = inactive\nทำให้ login ไม่ได้ทันที, เรียกซ้ำได้ (idempotent), เปิดกลับด้วย PUT /user-login/{user_id} ส่ง status = active",
+    "operationId": "delete_user_login",
+    "parameters": [
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "User Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "schemas": {
+  "HTTPValidationError": {
+   "properties": {
+    "detail": {
+     "items": {
+      "$ref": "#/components/schemas/ValidationError"
+     },
+     "type": "array",
+     "title": "Detail"
+    }
+   },
+   "type": "object",
+   "title": "HTTPValidationError"
+  },
+  "StaffCreate": {
+   "properties": {
+    "pname": {
+     "type": "string",
+     "title": "Pname",
+     "description": "คำนำหน้าชื่อ (required)"
+    },
+    "firstname": {
+     "type": "string",
+     "title": "Firstname",
+     "description": "ชื่อ (required)"
+    },
+    "lastname": {
+     "type": "string",
+     "title": "Lastname",
+     "description": "นามสกุล (required)"
+    },
+    "role": {
+     "type": "string",
+     "enum": [
+      "doctor",
+      "nurse",
+      "nurse_aide",
+      "pharmacist",
+      "therapist",
+      "receptionist",
+      "cashier",
+      "admin",
+      "other"
+     ],
+     "title": "Role",
+     "description": "ตำแหน่งงาน: doctor, nurse, nurse_aide, pharmacist, therapist, receptionist, cashier, admin, other — ถ้าเป็น doctor ต้องระบุ doctor_code ด้วย"
+    },
+    "gender": {
+     "type": "integer",
+     "title": "Gender",
+     "description": "เพศ: 1 = ชาย, 2 = หญิง (required)"
+    },
+    "doctor_code": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Doctor Code",
+     "description": "รหัสแพทย์ในตารางหมอ ใช้โยง staff เข้ากับหมอ — จำเป็นเมื่อ role = doctor เท่านั้น (หมอต้องถูก register ผ่าน POST /doctor/register ก่อน)"
+    },
+    "department": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Department",
+     "description": "แผนก เช่น OPD, ห้องยา, การเงิน"
+    },
+    "phone_no": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Phone No",
+     "description": "เบอร์โทรศัพท์"
+    },
+    "email": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Email",
+     "description": "อีเมล"
+    },
+    "address": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Address",
+     "description": "ที่อยู่"
+    },
+    "note": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Note",
+     "description": "หมายเหตุ"
+    }
+   },
+   "type": "object",
+   "required": [
+    "pname",
+    "firstname",
+    "lastname",
+    "role",
+    "gender"
+   ],
+   "title": "StaffCreate",
+   "description": "เพิ่ม staff ใหม่ — staff_code ไม่ต้องส่ง ระบบ generate ให้เอง (รูปแบบ ST-0001)"
+  },
+  "StaffUpdate": {
+   "properties": {
+    "pname": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Pname",
+     "description": "คำนำหน้าชื่อ"
+    },
+    "firstname": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Firstname",
+     "description": "ชื่อ"
+    },
+    "lastname": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Lastname",
+     "description": "นามสกุล"
+    },
+    "role": {
+     "anyOf": [
+      {
+       "type": "string",
+       "enum": [
+        "doctor",
+        "nurse",
+        "nurse_aide",
+        "pharmacist",
+        "therapist",
+        "receptionist",
+        "cashier",
+        "admin",
+        "other"
+       ]
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Role",
+     "description": "เปลี่ยนตำแหน่งงาน — เปลี่ยนเป็น doctor ต้องส่ง doctor_code มาด้วย (ถ้ายังไม่เคยโยงหมอ), เปลี่ยนออกจาก doctor ระบบจะปลดลิงก์หมอให้เอง"
+    },
+    "doctor_code": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Doctor Code",
+     "description": "โยง/ย้ายลิงก์ไปหมอคนใหม่ในตารางหมอ (ใช้ได้เฉพาะ staff ที่ role = doctor)"
+    },
+    "department": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Department",
+     "description": "แผนก"
+    },
+    "gender": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Gender",
+     "description": "เพศ: 1 = ชาย, 2 = หญิง"
+    },
+    "phone_no": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Phone No",
+     "description": "เบอร์โทรศัพท์"
+    },
+    "email": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Email",
+     "description": "อีเมล"
+    },
+    "address": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Address",
+     "description": "ที่อยู่"
+    },
+    "note": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Note",
+     "description": "หมายเหตุ"
+    },
+    "status": {
+     "anyOf": [
+      {
+       "type": "string",
+       "enum": [
+        "active",
+        "inactive"
+       ]
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Status",
+     "description": "inactive = ปิดการใช้งาน (soft delete), active = เปิดใช้งานกลับ — ระบบประทับ/ล้าง resign_date ให้เองตาม status"
+    }
+   },
+   "type": "object",
+   "title": "StaffUpdate",
+   "description": "แก้ไขข้อมูล staff — ส่งเฉพาะ field ที่ต้องการแก้ (partial update)"
+  },
+  "UserLoginCreate": {
+   "properties": {
+    "username": {
+     "type": "string",
+     "maxLength": 50,
+     "minLength": 4,
+     "title": "Username",
+     "description": "ชื่อผู้ใช้สำหรับ login (unique แบบไม่สนตัวพิมพ์เล็ก/ใหญ่, 4-50 ตัวอักษร)"
+    },
+    "password": {
+     "type": "string",
+     "maxLength": 128,
+     "minLength": 8,
+     "title": "Password",
+     "description": "รหัสผ่าน (อย่างน้อย 8 ตัวอักษร) — ระบบเก็บเป็น hash เท่านั้น ไม่เก็บ plaintext"
+    },
+    "staff_code": {
+     "type": "string",
+     "title": "Staff Code",
+     "description": "รหัสพนักงานที่ user นี้เป็นของ (จาก POST /staff เช่น ST-0001) — staff ต้องยัง active และยังไม่มี user"
+    },
+    "user_role": {
+     "type": "string",
+     "const": "superuser",
+     "title": "User Role",
+     "description": "role ของผู้ใช้: superuser (ตอนนี้มี superuser role เดียว — ทำได้ทุกอย่าง)",
+     "default": "superuser"
+    }
+   },
+   "type": "object",
+   "required": [
+    "username",
+    "password",
+    "staff_code"
+   ],
+   "title": "UserLoginCreate",
+   "description": "สร้าง user login ใหม่ — ต้องมี staff รองรับเสมอ (staff 1 คน มีได้ 1 user เท่านั้น)"
+  },
+  "UserLoginUpdate": {
+   "properties": {
+    "username": {
+     "anyOf": [
+      {
+       "type": "string",
+       "maxLength": 50,
+       "minLength": 4
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Username",
+     "description": "เปลี่ยนชื่อผู้ใช้ (unique แบบไม่สนตัวพิมพ์เล็ก/ใหญ่)"
+    },
+    "password": {
+     "anyOf": [
+      {
+       "type": "string",
+       "maxLength": 128,
+       "minLength": 8
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Password",
+     "description": "เปลี่ยนรหัสผ่าน (อย่างน้อย 8 ตัวอักษร) — ระบบ hash ใหม่ให้"
+    },
+    "user_role": {
+     "anyOf": [
+      {
+       "type": "string",
+       "const": "superuser"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "User Role",
+     "description": "เปลี่ยน role: superuser"
+    },
+    "status": {
+     "anyOf": [
+      {
+       "type": "string",
+       "enum": [
+        "active",
+        "inactive"
+       ]
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Status",
+     "description": "inactive = ระงับการ login (soft delete), active = เปิดใช้งานกลับ"
+    }
+   },
+   "type": "object",
+   "title": "UserLoginUpdate",
+   "description": "แก้ไข user login — ส่งเฉพาะ field ที่ต้องการแก้ (ย้าย user ไป staff คนอื่นไม่ได้)"
+  },
+  "UserLoginVerify": {
+   "properties": {
+    "username": {
+     "type": "string",
+     "title": "Username",
+     "description": "ชื่อผู้ใช้ (ไม่สนตัวพิมพ์เล็ก/ใหญ่)"
+    },
+    "password": {
+     "type": "string",
+     "title": "Password",
+     "description": "รหัสผ่าน"
+    }
+   },
+   "type": "object",
+   "required": [
+    "username",
+    "password"
+   ],
+   "title": "UserLoginVerify",
+   "description": "ตรวจสอบ username/password สำหรับ login"
+  },
+  "ValidationError": {
+   "properties": {
+    "loc": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "integer"
+       }
+      ]
+     },
+     "type": "array",
+     "title": "Location"
+    },
+    "msg": {
+     "type": "string",
+     "title": "Message"
+    },
+    "type": {
+     "type": "string",
+     "title": "Error Type"
+    },
+    "input": {
+     "title": "Input"
+    },
+    "ctx": {
+     "type": "object",
+     "title": "Context"
+    }
+   },
+   "type": "object",
+   "required": [
+    "loc",
+    "msg",
+    "type"
+   ],
+   "title": "ValidationError"
+  }
+ }
+}

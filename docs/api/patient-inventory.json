@@ -1,0 +1,746 @@
+{
+ "module": "patient-inventory",
+ "note": "Extracted from SuperHIS FastAPI openapi.json. Base URL via Next proxy: /api/his",
+ "paths": {
+  "/patient-inventory": {
+   "get": {
+    "tags": [
+     "Patient Inventory"
+    ],
+    "summary": "Get Patient Inventory",
+    "description": "ดูรายการ his_patient_inventory — ของที่ถูกสั่งและผูกกับผู้ป่วยรายตัว (เช่น สินค้าในคอร์ส, ยา)\ndefault ซ่อน status=expired ออก (see_all=false) ข้อมูลมาจากฐานข้อมูล HIS ไม่ใช่ Odoo\nhn และ vn ใช้ exact match เท่านั้น",
+    "operationId": "list_patient_inventory",
+    "parameters": [
+     {
+      "name": "hn",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "HN ผู้ป่วย — exact match",
+       "title": "Hn"
+      },
+      "description": "HN ผู้ป่วย — exact match"
+     },
+     {
+      "name": "vn",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "VN ที่ใช้ item (used_in_visit) — exact match",
+       "title": "Vn"
+      },
+      "description": "VN ที่ใช้ item (used_in_visit) — exact match"
+     },
+     {
+      "name": "status",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "สถานะ เช่น ready_to_use, used, cancelled (ใส่หลายค่าได้)",
+       "title": "Status"
+      },
+      "description": "สถานะ เช่น ready_to_use, used, cancelled (ใส่หลายค่าได้)"
+     },
+     {
+      "name": "date_from",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "วันที่สร้าง ตั้งแต่ (YYYY-MM-DD)",
+       "title": "Date From"
+      },
+      "description": "วันที่สร้าง ตั้งแต่ (YYYY-MM-DD)"
+     },
+     {
+      "name": "date_to",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "วันที่สร้าง ถึง (YYYY-MM-DD)",
+       "title": "Date To"
+      },
+      "description": "วันที่สร้าง ถึง (YYYY-MM-DD)"
+     },
+     {
+      "name": "see_all",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "boolean",
+       "description": "true = แสดงทุก status, false = ซ่อน expired",
+       "default": false,
+       "title": "See All"
+      },
+      "description": "true = แสดงทุก status, false = ซ่อน expired"
+     },
+     {
+      "name": "sort_by",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "description": "field ที่ใช้ sort: created_date, expired_date, hn, inv_id, item_id, item_name, order_id, quantity, remaining_qty, status, type, updated_date, used_by, used_in_visit",
+       "default": "created_date",
+       "title": "Sort By"
+      },
+      "description": "field ที่ใช้ sort: created_date, expired_date, hn, inv_id, item_id, item_name, order_id, quantity, remaining_qty, status, type, updated_date, used_by, used_in_visit"
+     },
+     {
+      "name": "sort_order",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "enum": [
+        "asc",
+        "desc"
+       ],
+       "type": "string",
+       "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย",
+       "default": "desc",
+       "title": "Sort Order"
+      },
+      "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/patient-inventory/create": {
+   "post": {
+    "tags": [
+     "Patient Inventory"
+    ],
+    "summary": "Create Patient Inventory",
+    "operationId": "create_patient_inventory_patient_inventory_create_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "items": {
+         "$ref": "#/components/schemas/PatientInventoryItem"
+        },
+        "type": "array",
+        "title": "Items"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/patient-inventory/prepare": {
+   "patch": {
+    "tags": [
+     "Patient Inventory"
+    ],
+    "summary": "Prepare Inventory",
+    "operationId": "prepare_inventory_patient_inventory_prepare_patch",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PreparePayload"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/patient-inventory/use": {
+   "patch": {
+    "tags": [
+     "Patient Inventory"
+    ],
+    "summary": "Use Inventory",
+    "operationId": "use_inventory_patient_inventory_use_patch",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/UsePayload"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/patient-inventory/expired/fetch_update": {
+   "patch": {
+    "tags": [
+     "Patient Inventory"
+    ],
+    "summary": "Fetch Update Expired",
+    "operationId": "fetch_update_expired_patient_inventory_expired_fetch_update_patch",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/FetchUpdateExpiredPayload"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/patient-inventory/delete": {
+   "delete": {
+    "tags": [
+     "Patient Inventory"
+    ],
+    "summary": "Delete Inventory",
+    "operationId": "delete_inventory_patient_inventory_delete_delete",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DeletePayload"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/patient-inventory/expire/extend": {
+   "patch": {
+    "tags": [
+     "Patient Inventory"
+    ],
+    "summary": "Extend Expired Inventory",
+    "operationId": "extend_expired_inventory_patient_inventory_expire_extend_patch",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ExtendExpiredPayload"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "schemas": {
+  "DeletePayload": {
+   "properties": {
+    "hn": {
+     "type": "string",
+     "title": "Hn"
+    },
+    "inv_id": {
+     "type": "integer",
+     "title": "Inv Id"
+    }
+   },
+   "type": "object",
+   "required": [
+    "hn",
+    "inv_id"
+   ],
+   "title": "DeletePayload"
+  },
+  "ExtendExpiredPayload": {
+   "properties": {
+    "hn": {
+     "type": "string",
+     "title": "Hn"
+    },
+    "inv_ids": {
+     "items": {
+      "type": "integer"
+     },
+     "type": "array",
+     "title": "Inv Ids"
+    },
+    "extended_date": {
+     "type": "string",
+     "format": "date-time",
+     "title": "Extended Date"
+    }
+   },
+   "type": "object",
+   "required": [
+    "hn",
+    "inv_ids",
+    "extended_date"
+   ],
+   "title": "ExtendExpiredPayload"
+  },
+  "FetchUpdateExpiredPayload": {
+   "properties": {
+    "current_date": {
+     "type": "string",
+     "format": "date",
+     "title": "Current Date"
+    }
+   },
+   "type": "object",
+   "required": [
+    "current_date"
+   ],
+   "title": "FetchUpdateExpiredPayload"
+  },
+  "HTTPValidationError": {
+   "properties": {
+    "detail": {
+     "items": {
+      "$ref": "#/components/schemas/ValidationError"
+     },
+     "type": "array",
+     "title": "Detail"
+    }
+   },
+   "type": "object",
+   "title": "HTTPValidationError"
+  },
+  "PatientInventoryItem": {
+   "properties": {
+    "hn": {
+     "type": "string",
+     "title": "Hn"
+    },
+    "order_id": {
+     "type": "integer",
+     "title": "Order Id"
+    },
+    "item_id": {
+     "type": "integer",
+     "title": "Item Id"
+    },
+    "item_name": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Item Name"
+    },
+    "created_by": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Created By"
+    },
+    "status": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Status",
+     "default": "ready_to_use"
+    },
+    "used_by": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Used By"
+    },
+    "medication_order_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Medication Order Id"
+    },
+    "detail": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Detail"
+    },
+    "note": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Note"
+    },
+    "quantity": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Quantity",
+     "default": 1.0
+    },
+    "remaining_qty": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Remaining Qty"
+    },
+    "count_unit": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Count Unit"
+    },
+    "type": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Type",
+     "default": "item"
+    },
+    "used_in_visit": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Used In Visit"
+    },
+    "course_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Course Id"
+    }
+   },
+   "type": "object",
+   "required": [
+    "hn",
+    "order_id",
+    "item_id"
+   ],
+   "title": "PatientInventoryItem"
+  },
+  "PreparePayload": {
+   "properties": {
+    "hn": {
+     "type": "string",
+     "title": "Hn"
+    },
+    "inv_id": {
+     "type": "integer",
+     "title": "Inv Id"
+    }
+   },
+   "type": "object",
+   "required": [
+    "hn",
+    "inv_id"
+   ],
+   "title": "PreparePayload"
+  },
+  "UsePayload": {
+   "properties": {
+    "hn": {
+     "type": "string",
+     "title": "Hn"
+    },
+    "inv_id": {
+     "type": "integer",
+     "title": "Inv Id"
+    },
+    "doctor_id": {
+     "type": "string",
+     "title": "Doctor Id"
+    },
+    "vn": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Vn"
+    }
+   },
+   "type": "object",
+   "required": [
+    "hn",
+    "inv_id",
+    "doctor_id"
+   ],
+   "title": "UsePayload"
+  },
+  "ValidationError": {
+   "properties": {
+    "loc": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "integer"
+       }
+      ]
+     },
+     "type": "array",
+     "title": "Location"
+    },
+    "msg": {
+     "type": "string",
+     "title": "Message"
+    },
+    "type": {
+     "type": "string",
+     "title": "Error Type"
+    },
+    "input": {
+     "title": "Input"
+    },
+    "ctx": {
+     "type": "object",
+     "title": "Context"
+    }
+   },
+   "type": "object",
+   "required": [
+    "loc",
+    "msg",
+    "type"
+   ],
+   "title": "ValidationError"
+  }
+ }
+}

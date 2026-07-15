@@ -1,0 +1,818 @@
+{
+ "module": "patients",
+ "note": "Extracted from SuperHIS FastAPI openapi.json. Base URL via Next proxy: /api/his",
+ "paths": {
+  "/partners": {
+   "get": {
+    "tags": [
+     "Partners"
+    ],
+    "summary": "Get Partners",
+    "description": "ดึงรายชื่อ Odoo Partner (res.partner) — ข้อมูลมาสดจาก Odoo ทุกครั้ง\nPartner ในที่นี้คือผู้ป่วยที่ถูก register เข้า Odoo แล้วผ่าน POST /partners/register/{hn}\nคืนเฉพาะ field: id, name, email, phone — default limit 10 รายการ (สูงสุด 50)\nใช้ id ที่ได้จาก response นี้เป็น partner_id ต่อใน Odoo workflow",
+    "operationId": "list_partners",
+    "parameters": [
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 50,
+       "description": "จำนวนรายการสูงสุดที่คืนต่อครั้ง",
+       "default": 10,
+       "title": "Limit"
+      },
+      "description": "จำนวนรายการสูงสุดที่คืนต่อครั้ง"
+     },
+     {
+      "name": "sort_by",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "description": "field ที่ใช้ sort: email, id, name, phone",
+       "default": "id",
+       "title": "Sort By"
+      },
+      "description": "field ที่ใช้ sort: email, id, name, phone"
+     },
+     {
+      "name": "sort_order",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "enum": [
+        "asc",
+        "desc"
+       ],
+       "type": "string",
+       "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย",
+       "default": "desc",
+       "title": "Sort Order"
+      },
+      "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/partners/register/{hn}": {
+   "post": {
+    "tags": [
+     "Partners"
+    ],
+    "summary": "Register Partner",
+    "operationId": "register_partner_partners_register__hn__post",
+    "parameters": [
+     {
+      "name": "hn",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Hn"
+      }
+     }
+    ],
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/patient": {
+   "post": {
+    "tags": [
+     "Patient"
+    ],
+    "summary": "Create Patient",
+    "operationId": "create_patient_patient_post",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PatientCreate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "get": {
+    "tags": [
+     "Patient"
+    ],
+    "summary": "Get Patients",
+    "description": "ค้นหาผู้ป่วยในระบบ — hn/uid/idcard_no/phone_no เป็น exact match, firstname/lastname เป็น partial match\nใช้ hn ที่ได้จาก response นี้เป็น key เรียก endpoint อื่น เช่น GET /visit?hn=..., GET /df?hn=...",
+    "operationId": "list_patients",
+    "parameters": [
+     {
+      "name": "hn",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "เลขที่ผู้ป่วย (exact match)",
+       "title": "Hn"
+      },
+      "description": "เลขที่ผู้ป่วย (exact match)"
+     },
+     {
+      "name": "firstname",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "ชื่อ (partial match)",
+       "title": "Firstname"
+      },
+      "description": "ชื่อ (partial match)"
+     },
+     {
+      "name": "lastname",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "นามสกุล (partial match)",
+       "title": "Lastname"
+      },
+      "description": "นามสกุล (partial match)"
+     },
+     {
+      "name": "uid",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "UID ของผู้ป่วย (exact match)",
+       "title": "Uid"
+      },
+      "description": "UID ของผู้ป่วย (exact match)"
+     },
+     {
+      "name": "idcard_no",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "เลขบัตรประชาชน (exact match)",
+       "title": "Idcard No"
+      },
+      "description": "เลขบัตรประชาชน (exact match)"
+     },
+     {
+      "name": "phone_no",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "เบอร์โทรศัพท์ (exact match)",
+       "title": "Phone No"
+      },
+      "description": "เบอร์โทรศัพท์ (exact match)"
+     },
+     {
+      "name": "sort_by",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "description": "field ที่ใช้ sort: birthdate, city, createddate, firstname, gender, hn, idcard_no, lastname, nationallity, phone_no, pname, province, status",
+       "default": "createddate",
+       "title": "Sort By"
+      },
+      "description": "field ที่ใช้ sort: birthdate, city, createddate, firstname, gender, hn, idcard_no, lastname, nationallity, phone_no, pname, province, status"
+     },
+     {
+      "name": "sort_order",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "enum": [
+        "asc",
+        "desc"
+       ],
+       "type": "string",
+       "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย",
+       "default": "desc",
+       "title": "Sort Order"
+      },
+      "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/patient/{hn}": {
+   "put": {
+    "tags": [
+     "Patient"
+    ],
+    "summary": "Update Patient",
+    "operationId": "update_patient_patient__hn__put",
+    "parameters": [
+     {
+      "name": "hn",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Hn"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PatientUpdate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "schemas": {
+  "HTTPValidationError": {
+   "properties": {
+    "detail": {
+     "items": {
+      "$ref": "#/components/schemas/ValidationError"
+     },
+     "type": "array",
+     "title": "Detail"
+    }
+   },
+   "type": "object",
+   "title": "HTTPValidationError"
+  },
+  "PatientCreate": {
+   "properties": {
+    "pname": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Pname"
+    },
+    "firstname": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Firstname"
+    },
+    "lastname": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Lastname"
+    },
+    "idcard_no": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Idcard No"
+    },
+    "passport_no": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Passport No"
+    },
+    "gender": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Gender"
+    },
+    "phone_no": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Phone No"
+    },
+    "profile_pic_url": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Profile Pic Url"
+    },
+    "nationallity": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Nationallity"
+    },
+    "birthdate": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Birthdate"
+    },
+    "uid": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Uid"
+    },
+    "status": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Status",
+     "default": "active"
+    },
+    "address": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Address"
+    },
+    "city": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "City"
+    },
+    "province": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Province"
+    },
+    "postal_code": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Postal Code"
+    },
+    "note": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Note"
+    }
+   },
+   "type": "object",
+   "title": "PatientCreate"
+  },
+  "PatientUpdate": {
+   "properties": {
+    "pname": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Pname"
+    },
+    "firstname": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Firstname"
+    },
+    "lastname": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Lastname"
+    },
+    "idcard_no": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Idcard No"
+    },
+    "passport_no": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Passport No"
+    },
+    "gender": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Gender"
+    },
+    "phone_no": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Phone No"
+    },
+    "profile_pic_url": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Profile Pic Url"
+    },
+    "nationallity": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Nationallity"
+    },
+    "birthdate": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Birthdate"
+    },
+    "uid": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Uid"
+    },
+    "status": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Status"
+    },
+    "address": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Address"
+    },
+    "city": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "City"
+    },
+    "province": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Province"
+    },
+    "postal_code": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Postal Code"
+    },
+    "note": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Note"
+    }
+   },
+   "type": "object",
+   "title": "PatientUpdate"
+  },
+  "ValidationError": {
+   "properties": {
+    "loc": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "integer"
+       }
+      ]
+     },
+     "type": "array",
+     "title": "Location"
+    },
+    "msg": {
+     "type": "string",
+     "title": "Message"
+    },
+    "type": {
+     "type": "string",
+     "title": "Error Type"
+    },
+    "input": {
+     "title": "Input"
+    },
+    "ctx": {
+     "type": "object",
+     "title": "Context"
+    }
+   },
+   "type": "object",
+   "required": [
+    "loc",
+    "msg",
+    "type"
+   ],
+   "title": "ValidationError"
+  }
+ }
+}

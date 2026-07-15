@@ -1,0 +1,809 @@
+{
+ "module": "df",
+ "note": "Extracted from SuperHIS FastAPI openapi.json. Base URL via Next proxy: /api/his",
+ "paths": {
+  "/df": {
+   "post": {
+    "tags": [
+     "Doctor Fee"
+    ],
+    "summary": "Create Df",
+    "description": "บันทึก DF การให้บริการ (คอร์ส/หัตถการ/ค่าปรึกษา) — 1 รายการต่อการทำ 1 ครั้ง กรอกจำนวนตามจริง\nหมอคนไหนทำครั้งไหน ลงชื่อหมอคนนั้น — visit เดียวหมอหลายคนก็ลงหลายรายการได้",
+    "operationId": "create_df_df_post",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DFCreate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "get": {
+    "tags": [
+     "Doctor Fee"
+    ],
+    "summary": "Get Df Entries",
+    "description": "ดูรายการ DF (Doctor Fee) ทั้งหมดในสมุดบัญชี — ใช้ค้นหาตาม visit/หมอ/สถานะ approval\nไม่กรอง approval_status = คืนทุกสถานะรวม pending, approved, voided\nvn ได้จาก GET /visit, doctor_code ได้จาก GET /staff หรือ GET /df/suggest",
+    "operationId": "list_df_entries",
+    "parameters": [
+     {
+      "name": "doctor_code",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "รหัสแพทย์ (exact match) — กรองเฉพาะหมอคนนั้น",
+       "title": "Doctor Code"
+      },
+      "description": "รหัสแพทย์ (exact match) — กรองเฉพาะหมอคนนั้น"
+     },
+     {
+      "name": "hn",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "เลขที่ผู้ป่วย (exact match)",
+       "title": "Hn"
+      },
+      "description": "เลขที่ผู้ป่วย (exact match)"
+     },
+     {
+      "name": "vn",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "เลขที่ visit (exact match) — ได้จาก GET /visit",
+       "title": "Vn"
+      },
+      "description": "เลขที่ visit (exact match) — ได้จาก GET /visit"
+     },
+     {
+      "name": "source_type",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "enum": [
+          "order",
+          "manual_service",
+          "reversal",
+          "no_df"
+         ],
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "ประเภทรายการ: order = ระบบตัดจากคำสั่ง, manual_service = หมอคีย์เอง, reversal = กลับรายการ, no_df = ยืนยันปิดโดยไม่มี DF",
+       "title": "Source Type"
+      },
+      "description": "ประเภทรายการ: order = ระบบตัดจากคำสั่ง, manual_service = หมอคีย์เอง, reversal = กลับรายการ, no_df = ยืนยันปิดโดยไม่มี DF"
+     },
+     {
+      "name": "approval_status",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "enum": [
+          "pending",
+          "approved",
+          "voided"
+         ],
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "สถานะ approval: pending = รออนุมัติ, approved = อนุมัติแล้ว, voided = ยกเลิก — ไม่ระบุ = คืนทุกสถานะ",
+       "title": "Approval Status"
+      },
+      "description": "สถานะ approval: pending = รออนุมัติ, approved = อนุมัติแล้ว, voided = ยกเลิก — ไม่ระบุ = คืนทุกสถานะ"
+     },
+     {
+      "name": "date_from",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "วันที่บันทึกตั้งแต่ (YYYY-MM-DD)",
+       "title": "Date From"
+      },
+      "description": "วันที่บันทึกตั้งแต่ (YYYY-MM-DD)"
+     },
+     {
+      "name": "date_to",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "วันที่บันทึกถึง (YYYY-MM-DD)",
+       "title": "Date To"
+      },
+      "description": "วันที่บันทึกถึง (YYYY-MM-DD)"
+     },
+     {
+      "name": "sort_by",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "description": "field ที่ใช้ sort: created_date, df_amount, df_id, doctor_code, hn, source_type, vn",
+       "default": "created_date",
+       "title": "Sort By"
+      },
+      "description": "field ที่ใช้ sort: created_date, df_amount, df_id, doctor_code, hn, source_type, vn"
+     },
+     {
+      "name": "sort_order",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "enum": [
+        "asc",
+        "desc"
+       ],
+       "type": "string",
+       "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย",
+       "default": "desc",
+       "title": "Sort Order"
+      },
+      "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/df/summary": {
+   "get": {
+    "tags": [
+     "Doctor Fee"
+    ],
+    "summary": "Get Df Summary",
+    "description": "ยอด DF สุทธิต่อหมอ (รวมรายการกลับรายการแล้ว) — ใช้เป็นฐานจ่ายเงินหมอต่องวด\n\nนับเฉพาะรายการ approval_status = 'approved' เท่านั้น: pending ยังไม่เข้ายอดจนกว่าจะ\nถูก approve และคู่ pending-ที่ถูกกลับรายการ (voided ทั้งคู่) ไม่ถูกนับเลย",
+    "operationId": "get_df_summary",
+    "parameters": [
+     {
+      "name": "date_from",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "ตั้งแต่วันที่ (YYYY-MM-DD)",
+       "title": "Date From"
+      },
+      "description": "ตั้งแต่วันที่ (YYYY-MM-DD)"
+     },
+     {
+      "name": "date_to",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "ถึงวันที่ (YYYY-MM-DD)",
+       "title": "Date To"
+      },
+      "description": "ถึงวันที่ (YYYY-MM-DD)"
+     },
+     {
+      "name": "doctor_code",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "ไม่ระบุ = ทุกหมอ (ไว้ทำรอบจ่ายเงิน)",
+       "title": "Doctor Code"
+      },
+      "description": "ไม่ระบุ = ทุกหมอ (ไว้ทำรอบจ่ายเงิน)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/df/summary/monthly": {
+   "get": {
+    "tags": [
+     "Doctor Fee"
+    ],
+    "summary": "Get Df Monthly Summary",
+    "description": "ยอด DF สุทธิของหมอหนึ่งคนในเดือนที่ระบุ (จาก v_df_monthly_summary) พร้อมรายการ\nDF ทุกตัวที่ประกอบเป็นยอดนั้น (จาก his_df_transaction filter เดียวกับ view:\napproved เท่านั้น) — ผลรวมของ entries จะเท่ากับ total_df เสมอ",
+    "operationId": "get_df_monthly_summary",
+    "parameters": [
+     {
+      "name": "doctor_code",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "description": "รหัสแพทย์",
+       "title": "Doctor Code"
+      },
+      "description": "รหัสแพทย์"
+     },
+     {
+      "name": "month",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "description": "เดือนที่ต้องการ รูปแบบ YYYY-MM เช่น 2026-07",
+       "title": "Month"
+      },
+      "description": "เดือนที่ต้องการ รูปแบบ YYYY-MM เช่น 2026-07"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/df/missing": {
+   "get": {
+    "tags": [
+     "Doctor Fee"
+    ],
+    "summary": "Get Df Missing",
+    "description": "ตาข่ายปิดวัน: visit ของวันนั้นที่ 'ควรมี DF' (มี encounter กับหมอ หรือมีการตัดใช้ของ)\nแต่ยังไม่มีรายการ DF เลย — รวม visit ที่กดยืนยันปิดโดยไม่มี DF (no_df_confirmed=true) ให้ตรวจทาน",
+    "operationId": "list_df_missing_visits",
+    "parameters": [
+     {
+      "name": "date",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "วันที่ตรวจ (default = วันนี้)",
+       "title": "Date"
+      },
+      "description": "วันที่ตรวจ (default = วันนี้)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/df/suggest": {
+   "get": {
+    "tags": [
+     "Doctor Fee"
+    ],
+    "summary": "Suggest Df Candidates",
+    "description": "ช่วยหน้างานกรอกไว: เดารายชื่อหมอของ visit นี้ (จาก encounter และ used_by ของการตัดใช้)\nพร้อม DF ล่าสุดที่หมอคนนั้นเคยคีย์ — frontend ทำปุ่ม 'เท่าครั้งก่อน' ได้เลย",
+    "operationId": "suggest_df_doctors",
+    "parameters": [
+     {
+      "name": "vn",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "description": "VN ที่จะบันทึก DF",
+       "title": "Vn"
+      },
+      "description": "VN ที่จะบันทึก DF"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/df/approve-by-vn": {
+   "patch": {
+    "tags": [
+     "Doctor Fee"
+    ],
+    "summary": "Approve Df By Vn",
+    "description": "Approve DF ที่ pending ทั้งหมดของ visit ทีเดียว — จุดใช้งานหลักของผู้ approve ก่อนปิด visit",
+    "operationId": "approve_df_by_vn_df_approve_by_vn_patch",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DFApproveByVn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/df/{df_id}/approve": {
+   "patch": {
+    "tags": [
+     "Doctor Fee"
+    ],
+    "summary": "Approve Df Entry",
+    "description": "Approve DF รายตัว (เฉพาะรายการที่หมอคีย์เอง source=manual_service และยัง pending)",
+    "operationId": "approve_df_entry_df__df_id__approve_patch",
+    "parameters": [
+     {
+      "name": "df_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Df Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DFApprove"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/df/{df_id}/reverse": {
+   "post": {
+    "tags": [
+     "Doctor Fee"
+    ],
+    "summary": "Reverse Df Entry",
+    "description": "กลับรายการ DF (append-only: สร้างแถวใหม่ยอดติดลบ ไม่ลบแถวเดิม) — กลับซ้ำไม่ได้\n\nกรณีกลับรายการที่ยัง pending (= ผู้ approve ไม่เห็นด้วย): ทั้งคู่ถูกทำเป็น voided\nเพื่อไม่ block การปิด visit และไม่ถูกนับใน payroll ทั้งบวกและลบ",
+    "operationId": "reverse_df_entry_df__df_id__reverse_post",
+    "parameters": [
+     {
+      "name": "df_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Df Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DFReverse"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "schemas": {
+  "DFApprove": {
+   "properties": {
+    "approved_by": {
+     "type": "string",
+     "minLength": 1,
+     "title": "Approved By",
+     "description": "ผู้ approve (required — ต้องรู้ว่าใครอนุมัติ)"
+    }
+   },
+   "type": "object",
+   "required": [
+    "approved_by"
+   ],
+   "title": "DFApprove"
+  },
+  "DFApproveByVn": {
+   "properties": {
+    "vn": {
+     "type": "string",
+     "title": "Vn",
+     "description": "อนุมัติ DF ที่ pending ทั้งหมดของ visit นี้ทีเดียว"
+    },
+    "approved_by": {
+     "type": "string",
+     "minLength": 1,
+     "title": "Approved By",
+     "description": "ผู้ approve (required)"
+    }
+   },
+   "type": "object",
+   "required": [
+    "vn",
+    "approved_by"
+   ],
+   "title": "DFApproveByVn"
+  },
+  "DFCreate": {
+   "properties": {
+    "doctor_code": {
+     "type": "string",
+     "title": "Doctor Code",
+     "description": "หมอผู้ได้ DF (required)"
+    },
+    "hn": {
+     "type": "string",
+     "title": "Hn",
+     "description": "HN ผู้ป่วย"
+    },
+    "vn": {
+     "type": "string",
+     "title": "Vn",
+     "description": "VN ของ visit ที่ให้บริการ"
+    },
+    "df_amount": {
+     "type": "number",
+     "exclusiveMinimum": 0.0,
+     "title": "Df Amount",
+     "description": "จำนวน DF (บาท) — กรอกตามจริงต่อครั้ง"
+    },
+    "course_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Course Id",
+     "description": "คอร์สที่เกี่ยวข้อง (optional — เพื่อ trace)"
+    },
+    "note": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Note",
+     "description": "หมายเหตุ เช่น 'โบท็อกซ์ ครั้งที่ 5'"
+    },
+    "created_by": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Created By",
+     "description": "ผู้บันทึก (optional)"
+    }
+   },
+   "type": "object",
+   "required": [
+    "doctor_code",
+    "hn",
+    "vn",
+    "df_amount"
+   ],
+   "title": "DFCreate",
+   "description": "บันทึก DF หมอสำหรับการให้บริการ (คอร์ส/หัตถการ/ค่าปรึกษา) — user กรอกจำนวนเองต่อครั้ง\nส่วน DF แบบขายขาดที่ต้องโชว์ในบิลลูกค้า ให้ส่ง doctor_code + df_amount ไปกับ POST /order แทน"
+  },
+  "DFReverse": {
+   "properties": {
+    "note": {
+     "type": "string",
+     "minLength": 1,
+     "title": "Note",
+     "description": "เหตุผลการกลับรายการ (required)"
+    },
+    "created_by": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Created By",
+     "description": "ผู้ทำรายการ (optional)"
+    }
+   },
+   "type": "object",
+   "required": [
+    "note"
+   ],
+   "title": "DFReverse"
+  },
+  "HTTPValidationError": {
+   "properties": {
+    "detail": {
+     "items": {
+      "$ref": "#/components/schemas/ValidationError"
+     },
+     "type": "array",
+     "title": "Detail"
+    }
+   },
+   "type": "object",
+   "title": "HTTPValidationError"
+  },
+  "ValidationError": {
+   "properties": {
+    "loc": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "integer"
+       }
+      ]
+     },
+     "type": "array",
+     "title": "Location"
+    },
+    "msg": {
+     "type": "string",
+     "title": "Message"
+    },
+    "type": {
+     "type": "string",
+     "title": "Error Type"
+    },
+    "input": {
+     "title": "Input"
+    },
+    "ctx": {
+     "type": "object",
+     "title": "Context"
+    }
+   },
+   "type": "object",
+   "required": [
+    "loc",
+    "msg",
+    "type"
+   ],
+   "title": "ValidationError"
+  }
+ }
+}

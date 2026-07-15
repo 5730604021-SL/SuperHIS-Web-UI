@@ -1,0 +1,1430 @@
+{
+ "module": "products-inventory",
+ "note": "Extracted from SuperHIS FastAPI openapi.json. Base URL via Next proxy: /api/his",
+ "paths": {
+  "/products": {
+   "get": {
+    "tags": [
+     "Products"
+    ],
+    "summary": "Get Products",
+    "description": "ค้นหาสินค้าทุกประเภทจาก Odoo (product.template) — ครอบคลุมทั้งยา วัสดุสิ้นเปลือง และบริการ\nข้อมูลมาสดจาก Odoo ทุกครั้ง\ndefault คืนเฉพาะสินค้าที่ is_active=true, ใช้ see_all=true เพื่อรวมสินค้าที่ปิดใช้งานแล้ว\nต้องการเฉพาะยา ใช้ GET /drug แทน เพราะกรองเฉพาะ product ที่มี drug_category และแนบชื่อหมวดหมู่ยามาให้",
+    "operationId": "list_products",
+    "parameters": [
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 100,
+       "description": "จำนวนรายการสูงสุดที่คืนต่อครั้ง",
+       "default": 20,
+       "title": "Limit"
+      },
+      "description": "จำนวนรายการสูงสุดที่คืนต่อครั้ง"
+     },
+     {
+      "name": "offset",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "description": "จำนวนรายการที่ข้ามจากต้นรายการ (ใช้แบ่งหน้า)",
+       "default": 0,
+       "title": "Offset"
+      },
+      "description": "จำนวนรายการที่ข้ามจากต้นรายการ (ใช้แบ่งหน้า)"
+     },
+     {
+      "name": "see_all",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "boolean",
+       "description": "true = ดึงทั้งหมดรวม is_active=false, false = ดึงเฉพาะ is_active=true",
+       "default": false,
+       "title": "See All"
+      },
+      "description": "true = ดึงทั้งหมดรวม is_active=false, false = ดึงเฉพาะ is_active=true"
+     },
+     {
+      "name": "name",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "ค้นหาชื่อสินค้า (partial match)",
+       "title": "Name"
+      },
+      "description": "ค้นหาชื่อสินค้า (partial match)"
+     },
+     {
+      "name": "default_code",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "ค้นหารหัสสินค้า (partial match)",
+       "title": "Default Code"
+      },
+      "description": "ค้นหารหัสสินค้า (partial match)"
+     },
+     {
+      "name": "detailed_type",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "ประเภทสินค้า: product, consu, service (exact match)",
+       "title": "Detailed Type"
+      },
+      "description": "ประเภทสินค้า: product, consu, service (exact match)"
+     },
+     {
+      "name": "is_included_patient_inventory",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "รวมในรายการยาของผู้ป่วย",
+       "title": "Is Included Patient Inventory"
+      },
+      "description": "รวมในรายการยาของผู้ป่วย"
+     },
+     {
+      "name": "medical_category",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม medical_category (exact match)",
+       "title": "Medical Category"
+      },
+      "description": "กรองตาม medical_category (exact match)"
+     },
+     {
+      "name": "insurance_category",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม insurance_category (exact match)",
+       "title": "Insurance Category"
+      },
+      "description": "กรองตาม insurance_category (exact match)"
+     },
+     {
+      "name": "billing_category",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม billing_category (exact match)",
+       "title": "Billing Category"
+      },
+      "description": "กรองตาม billing_category (exact match)"
+     },
+     {
+      "name": "drug_category",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตามรหัสหมวดหมู่ยา drug_category (exact match)",
+       "title": "Drug Category"
+      },
+      "description": "กรองตามรหัสหมวดหมู่ยา drug_category (exact match)"
+     },
+     {
+      "name": "stock_category",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม stock_category (exact match)",
+       "title": "Stock Category"
+      },
+      "description": "กรองตาม stock_category (exact match)"
+     },
+     {
+      "name": "sale_category",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม sale_category (exact match)",
+       "title": "Sale Category"
+      },
+      "description": "กรองตาม sale_category (exact match)"
+     },
+     {
+      "name": "roles_category",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม roles_category (exact match)",
+       "title": "Roles Category"
+      },
+      "description": "กรองตาม roles_category (exact match)"
+     },
+     {
+      "name": "unit_of_use",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตามหน่วยใช้ยา unit_of_use (exact match)",
+       "title": "Unit Of Use"
+      },
+      "description": "กรองตามหน่วยใช้ยา unit_of_use (exact match)"
+     },
+     {
+      "name": "search_terms",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "ค้นหาจาก search_terms (partial match)",
+       "title": "Search Terms"
+      },
+      "description": "ค้นหาจาก search_terms (partial match)"
+     },
+     {
+      "name": "sort_by",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "description": "field ที่ใช้ sort: default_code, detailed_type, id, list_price, name, qty_available, standard_price",
+       "default": "id",
+       "title": "Sort By"
+      },
+      "description": "field ที่ใช้ sort: default_code, detailed_type, id, list_price, name, qty_available, standard_price"
+     },
+     {
+      "name": "sort_order",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "enum": [
+        "asc",
+        "desc"
+       ],
+       "type": "string",
+       "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย",
+       "default": "desc",
+       "title": "Sort Order"
+      },
+      "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "tags": [
+     "Products"
+    ],
+    "summary": "Create Product",
+    "operationId": "create_product_products_post",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ProductCreate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/products/{product_id}": {
+   "put": {
+    "tags": [
+     "Products"
+    ],
+    "summary": "Update Product",
+    "operationId": "update_product_products__product_id__put",
+    "parameters": [
+     {
+      "name": "product_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Product Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ProductUpdate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "Products"
+    ],
+    "summary": "Delete Product",
+    "operationId": "delete_product_products__product_id__delete",
+    "parameters": [
+     {
+      "name": "product_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Product Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/inventory": {
+   "get": {
+    "tags": [
+     "Inventory"
+    ],
+    "summary": "Get Inventory",
+    "description": "ดูรายการ stock.quant (สินค้าในคลัง) จาก Odoo — กรองเฉพาะ internal location เสมอ (ไม่รวม virtual/customer/supplier)\ndefault แสดงเฉพาะสินค้าที่ is_active=true, ข้อมูลมาสดจาก Odoo ทุกครั้ง\ncategory filter ทุกตัวใช้ exact match ไม่ใช่ partial match",
+    "operationId": "list_inventory",
+    "parameters": [
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 100,
+       "description": "จำนวนรายการสูงสุดที่คืนต่อครั้ง",
+       "default": 20,
+       "title": "Limit"
+      },
+      "description": "จำนวนรายการสูงสุดที่คืนต่อครั้ง"
+     },
+     {
+      "name": "offset",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "description": "จำนวนรายการที่ข้ามจากต้นรายการ (ใช้แบ่งหน้า)",
+       "default": 0,
+       "title": "Offset"
+      },
+      "description": "จำนวนรายการที่ข้ามจากต้นรายการ (ใช้แบ่งหน้า)"
+     },
+     {
+      "name": "see_all",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "boolean",
+       "description": "true = รวมสินค้าที่ is_active=false, false = เฉพาะ is_active=true",
+       "default": false,
+       "title": "See All"
+      },
+      "description": "true = รวมสินค้าที่ is_active=false, false = เฉพาะ is_active=true"
+     },
+     {
+      "name": "name",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "ค้นหาจากชื่อสินค้า (partial match)",
+       "title": "Name"
+      },
+      "description": "ค้นหาจากชื่อสินค้า (partial match)"
+     },
+     {
+      "name": "location_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม Odoo location id — exact match",
+       "title": "Location Id"
+      },
+      "description": "กรองตาม Odoo location id — exact match"
+     },
+     {
+      "name": "medical_category",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม medical_category ของสินค้า — exact match",
+       "title": "Medical Category"
+      },
+      "description": "กรองตาม medical_category ของสินค้า — exact match"
+     },
+     {
+      "name": "insurance_category",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม insurance_category ของสินค้า — exact match",
+       "title": "Insurance Category"
+      },
+      "description": "กรองตาม insurance_category ของสินค้า — exact match"
+     },
+     {
+      "name": "billing_category",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม billing_category ของสินค้า — exact match",
+       "title": "Billing Category"
+      },
+      "description": "กรองตาม billing_category ของสินค้า — exact match"
+     },
+     {
+      "name": "drug_category",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม drug_category ของสินค้า — exact match",
+       "title": "Drug Category"
+      },
+      "description": "กรองตาม drug_category ของสินค้า — exact match"
+     },
+     {
+      "name": "stock_category",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม stock_category ของสินค้า เช่น cut, sub-cut, non-cut — exact match",
+       "title": "Stock Category"
+      },
+      "description": "กรองตาม stock_category ของสินค้า เช่น cut, sub-cut, non-cut — exact match"
+     },
+     {
+      "name": "sale_category",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม sale_category ของสินค้า — exact match",
+       "title": "Sale Category"
+      },
+      "description": "กรองตาม sale_category ของสินค้า — exact match"
+     },
+     {
+      "name": "roles_category",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม roles_category ของสินค้า — exact match",
+       "title": "Roles Category"
+      },
+      "description": "กรองตาม roles_category ของสินค้า — exact match"
+     },
+     {
+      "name": "sort_by",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "description": "field ที่ใช้ sort: available_quantity, id, quantity, reserved_quantity",
+       "default": "id",
+       "title": "Sort By"
+      },
+      "description": "field ที่ใช้ sort: available_quantity, id, quantity, reserved_quantity"
+     },
+     {
+      "name": "sort_order",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "enum": [
+        "asc",
+        "desc"
+       ],
+       "type": "string",
+       "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย",
+       "default": "desc",
+       "title": "Sort Order"
+      },
+      "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/inventory/restock": {
+   "post": {
+    "tags": [
+     "Inventory"
+    ],
+    "summary": "Restock",
+    "operationId": "restock_inventory_restock_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/RestockPayload"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/inventory/deduct": {
+   "post": {
+    "tags": [
+     "Inventory"
+    ],
+    "summary": "Deduct Patient Inventory",
+    "operationId": "deduct_patient_inventory_inventory_deduct_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PatientDeductPayload"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "schemas": {
+  "DeductItem": {
+   "properties": {
+    "id": {
+     "type": "integer",
+     "title": "Id",
+     "description": "product.product id (mode product_id) หรือ inv_id (mode inv_id)"
+    },
+    "quantity": {
+     "type": "number",
+     "exclusiveMinimum": 0.0,
+     "title": "Quantity",
+     "description": "จำนวนที่ต้องการหัก (หน่วยใช้จริง เช่น cc)"
+    }
+   },
+   "type": "object",
+   "required": [
+    "id",
+    "quantity"
+   ],
+   "title": "DeductItem"
+  },
+  "HTTPValidationError": {
+   "properties": {
+    "detail": {
+     "items": {
+      "$ref": "#/components/schemas/ValidationError"
+     },
+     "type": "array",
+     "title": "Detail"
+    }
+   },
+   "type": "object",
+   "title": "HTTPValidationError"
+  },
+  "PatientDeductPayload": {
+   "properties": {
+    "hn": {
+     "type": "string",
+     "title": "Hn",
+     "description": "HN ผู้ป่วย"
+    },
+    "vn": {
+     "type": "string",
+     "title": "Vn",
+     "description": "VN ที่เกิดการใช้ (ต้องเป็นของ HN นี้ และยังไม่ checkout)"
+    },
+    "location_id": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Location Id",
+     "description": "Ward location id — required ถ้ามี item เป็น sub-cut"
+    },
+    "used_by": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Used By",
+     "description": "doctor_code ผู้สั่งใช้ (optional)"
+    },
+    "created_by": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Created By",
+     "description": "ผู้ทำรายการ (optional)"
+    },
+    "idempotency_key": {
+     "anyOf": [
+      {
+       "type": "string",
+       "maxLength": 100
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Idempotency Key",
+     "description": "คีย์กันคำขอซ้ำ (optional) — ยิงซ้ำด้วยคีย์เดิมจะได้ 409 ไม่หัก stock ซ้ำ"
+    },
+    "order_id": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Order Id",
+     "description": "หักเต็ม remaining_qty ทุก item ที่ ready_to_use/extended ใน order นี้"
+    },
+    "inv_id": {
+     "anyOf": [
+      {
+       "items": {
+        "$ref": "#/components/schemas/DeductItem"
+       },
+       "type": "array"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Inv Id",
+     "description": "[{id: inv_id, quantity}] — หักเจาะจง row นั้นๆ เท่านั้น"
+    },
+    "product_id": {
+     "anyOf": [
+      {
+       "items": {
+        "$ref": "#/components/schemas/DeductItem"
+       },
+       "type": "array"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Product Id",
+     "description": "[{id: product.product id, quantity}] — หักแบบ FIFO ตาม created_date"
+    }
+   },
+   "type": "object",
+   "required": [
+    "hn",
+    "vn"
+   ],
+   "title": "PatientDeductPayload"
+  },
+  "ProductCreate": {
+   "properties": {
+    "name": {
+     "type": "string",
+     "title": "Name",
+     "description": "ชื่อสินค้า",
+     "example": "ชานมไข่มุกน้องมิว"
+    },
+    "list_price": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "List Price",
+     "description": "ราคาขาย",
+     "default": 0.0,
+     "example": 55.0
+    },
+    "standard_price": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Standard Price",
+     "description": "ราคาทุน",
+     "default": 0.0,
+     "example": 20.0
+    },
+    "barcode": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Barcode",
+     "description": "บาร์โค้ด",
+     "example": "8851234567890"
+    },
+    "description": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Description",
+     "description": "รายละเอียดสินค้า"
+    },
+    "is_included_patient_inventory": {
+     "type": "boolean",
+     "title": "Is Included Patient Inventory",
+     "description": "รวมในรายการยาและเวชภัณฑ์ของผู้ป่วย",
+     "default": true
+    },
+    "medical_category": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Medical Category",
+     "description": "หมวดหมู่ทางการแพทย์"
+    },
+    "insurance_category": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Insurance Category",
+     "description": "หมวดหมู่ประกัน"
+    },
+    "billing_category": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Billing Category",
+     "description": "หมวดหมู่การเรียกเก็บเงิน"
+    },
+    "drug_category": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Drug Category",
+     "description": "หมวดหมู่ยา"
+    },
+    "stock_category": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Stock Category",
+     "description": "หมวดหมู่คลังสินค้า"
+    },
+    "sale_category": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Sale Category",
+     "description": "หมวดหมู่การขาย"
+    },
+    "roles_category": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Roles Category",
+     "description": "หมวดหมู่สิทธิ์"
+    },
+    "transfer_qty_coef": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Transfer Qty Coef",
+     "description": "สัดส่วนการแปลงหน่วย เช่น 100 = 1 ขวด → 100 cc (default 1.0)",
+     "default": 1.0
+    },
+    "unit_of_use": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Unit Of Use",
+     "description": "หน่วยที่ใช้จริงใน unit inventory เช่น cc, mg"
+    },
+    "search_terms": {
+     "anyOf": [
+      {
+       "items": {
+        "type": "string"
+       },
+       "type": "array"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Search Terms",
+     "description": "คำค้นหาเพิ่มเติม"
+    }
+   },
+   "type": "object",
+   "required": [
+    "name"
+   ],
+   "title": "ProductCreate"
+  },
+  "ProductUpdate": {
+   "properties": {
+    "name": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Name",
+     "description": "ชื่อสินค้า"
+    },
+    "list_price": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "List Price",
+     "description": "ราคาขาย"
+    },
+    "standard_price": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Standard Price",
+     "description": "ราคาทุน"
+    },
+    "default_code": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Default Code",
+     "description": "รหัสสินค้า (Internal Reference)"
+    },
+    "detailed_type": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Detailed Type",
+     "description": "ประเภทสินค้า เช่น product, consu, service"
+    },
+    "is_included_patient_inventory": {
+     "anyOf": [
+      {
+       "type": "boolean"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Is Included Patient Inventory",
+     "description": "รวมในรายการยาและเวชภัณฑ์ของผู้ป่วย"
+    },
+    "is_active": {
+     "anyOf": [
+      {
+       "type": "boolean"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Is Active",
+     "description": "ใช้งาน"
+    },
+    "medical_category": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Medical Category",
+     "description": "หมวดหมู่ทางการแพทย์"
+    },
+    "insurance_category": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Insurance Category",
+     "description": "หมวดหมู่ประกัน"
+    },
+    "billing_category": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Billing Category",
+     "description": "หมวดหมู่การเรียกเก็บเงิน"
+    },
+    "drug_category": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Drug Category",
+     "description": "หมวดหมู่ยา"
+    },
+    "stock_category": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Stock Category",
+     "description": "หมวดหมู่คลังสินค้า"
+    },
+    "sale_category": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Sale Category",
+     "description": "หมวดหมู่การขาย"
+    },
+    "roles_category": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Roles Category",
+     "description": "หมวดหมู่สิทธิ์"
+    },
+    "transfer_qty_coef": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Transfer Qty Coef",
+     "description": "สัดส่วนการแปลงหน่วย เช่น 100 = 1 ขวด → 100 cc"
+    },
+    "unit_of_use": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Unit Of Use",
+     "description": "หน่วยที่ใช้จริงใน unit inventory เช่น cc, mg"
+    },
+    "search_terms": {
+     "anyOf": [
+      {
+       "items": {
+        "type": "string"
+       },
+       "type": "array"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Search Terms",
+     "description": "คำค้นหาเพิ่มเติม"
+    }
+   },
+   "type": "object",
+   "title": "ProductUpdate"
+  },
+  "RestockPayload": {
+   "properties": {
+    "product_template_id": {
+     "type": "integer",
+     "title": "Product Template Id",
+     "description": "Odoo product.template id"
+    },
+    "quantity": {
+     "type": "number",
+     "exclusiveMinimum": 0.0,
+     "title": "Quantity",
+     "description": "จำนวนที่ต้องการเติม (ต้องมากกว่า 0)"
+    },
+    "location_id": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Location Id",
+     "description": "Odoo stock.location id (ถ้าไม่ระบุจะใช้ WH/Stock)"
+    }
+   },
+   "type": "object",
+   "required": [
+    "product_template_id",
+    "quantity"
+   ],
+   "title": "RestockPayload"
+  },
+  "ValidationError": {
+   "properties": {
+    "loc": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "integer"
+       }
+      ]
+     },
+     "type": "array",
+     "title": "Location"
+    },
+    "msg": {
+     "type": "string",
+     "title": "Message"
+    },
+    "type": {
+     "type": "string",
+     "title": "Error Type"
+    },
+    "input": {
+     "title": "Input"
+    },
+    "ctx": {
+     "type": "object",
+     "title": "Context"
+    }
+   },
+   "type": "object",
+   "required": [
+    "loc",
+    "msg",
+    "type"
+   ],
+   "title": "ValidationError"
+  }
+ }
+}

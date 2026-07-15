@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: light;
+}
+
+@theme inline {
+  --font-sans: var(--font-noto-sans-thai);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  font-family: var(--font-noto-sans-thai), -apple-system, "Segoe UI", Tahoma,
+    Arial, sans-serif;
+}

@@ -1,0 +1,1309 @@
+{
+ "module": "tools-courses",
+ "note": "Extracted from SuperHIS FastAPI openapi.json. Base URL via Next proxy: /api/his",
+ "paths": {
+  "/courses/register": {
+   "post": {
+    "tags": [
+     "Courses"
+    ],
+    "summary": "Register Course",
+    "operationId": "register_course_courses_register_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CourseRegisterRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/courses": {
+   "get": {
+    "tags": [
+     "Courses"
+    ],
+    "summary": "Get Courses",
+    "description": "ค้นหาคอร์สการรักษา/โปรแกรมสุขภาพที่ลงทะเบียนในระบบ\nแต่ละคอร์สมีรายการสินค้า/บริการซ้อนอยู่ใน field \"items\" (พร้อมชื่อสินค้าจาก Odoo)\nเรียงตาม startdate desc เป็น default — คอร์สที่เพิ่งเริ่มต้นจะขึ้นก่อน",
+    "operationId": "list_courses",
+    "parameters": [
+     {
+      "name": "course_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "รหัสคอร์ส (exact match)",
+       "title": "Course Id"
+      },
+      "description": "รหัสคอร์ส (exact match)"
+     },
+     {
+      "name": "bussiness_course_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "รหัสคอร์สจากระบบธุรกิจภายนอก (exact match)",
+       "title": "Bussiness Course Id"
+      },
+      "description": "รหัสคอร์สจากระบบธุรกิจภายนอก (exact match)"
+     },
+     {
+      "name": "name",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "ชื่อคอร์ส (partial match)",
+       "title": "Name"
+      },
+      "description": "ชื่อคอร์ส (partial match)"
+     },
+     {
+      "name": "sort_by",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "description": "field ที่ใช้ sort: bussiness_course_id, course_id, expiredate, name, price, startdate, status",
+       "default": "startdate",
+       "title": "Sort By"
+      },
+      "description": "field ที่ใช้ sort: bussiness_course_id, course_id, expiredate, name, price, startdate, status"
+     },
+     {
+      "name": "sort_order",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "enum": [
+        "asc",
+        "desc"
+       ],
+       "type": "string",
+       "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย",
+       "default": "desc",
+       "title": "Sort Order"
+      },
+      "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/clinical-tool/register": {
+   "post": {
+    "tags": [
+     "Clinical Tool"
+    ],
+    "summary": "Register Clinical Tool",
+    "description": "ลงทะเบียนเครื่องมือทางคลินิกใหม่ เช่น เครื่องทำหัตถการ Ultraformer —\ntool_code ระบบ generate ให้เอง (CT-0001) คืนกลับใน response,\nserial_no ซ้ำกับเครื่องที่ลงทะเบียนแล้วได้ 409 (กันลงเครื่องเดิมซ้ำ)",
+    "operationId": "register_clinical_tool",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ClinicalToolRegister"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/clinical-tool": {
+   "get": {
+    "tags": [
+     "Clinical Tool"
+    ],
+    "summary": "Get Clinical Tools",
+    "description": "ค้นหา/ดูรายการเครื่องมือทางคลินิกทั้งหมดของคลินิก — ใช้หา tool_id\nเพื่อไปดูรายละเอียดเต็มที่ GET /clinical-tool/{tool_id}",
+    "operationId": "list_clinical_tools",
+    "parameters": [
+     {
+      "name": "tool_code",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "รหัสเครื่องมือ (partial match)",
+       "title": "Tool Code"
+      },
+      "description": "รหัสเครื่องมือ (partial match)"
+     },
+     {
+      "name": "tool_name",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "ชื่อเครื่องมือ (partial match)",
+       "title": "Tool Name"
+      },
+      "description": "ชื่อเครื่องมือ (partial match)"
+     },
+     {
+      "name": "category",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "ประเภทเครื่อง (partial match) เช่น hifu, laser",
+       "title": "Category"
+      },
+      "description": "ประเภทเครื่อง (partial match) เช่น hifu, laser"
+     },
+     {
+      "name": "brand",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "ยี่ห้อ (partial match)",
+       "title": "Brand"
+      },
+      "description": "ยี่ห้อ (partial match)"
+     },
+     {
+      "name": "serial_no",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "หมายเลขเครื่อง (partial match)",
+       "title": "Serial No"
+      },
+      "description": "หมายเลขเครื่อง (partial match)"
+     },
+     {
+      "name": "location",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "ตำแหน่งที่ตั้ง/ห้อง (partial match)",
+       "title": "Location"
+      },
+      "description": "ตำแหน่งที่ตั้ง/ห้อง (partial match)"
+     },
+     {
+      "name": "status",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "enum": [
+          "active",
+          "maintenance",
+          "retired"
+         ],
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "สถานะเครื่อง: active = ใช้งาน, maintenance = ส่งซ่อม/บำรุงรักษา, retired = ปลดระวาง (ไม่ระบุ = ทุกสถานะ)",
+       "title": "Status"
+      },
+      "description": "สถานะเครื่อง: active = ใช้งาน, maintenance = ส่งซ่อม/บำรุงรักษา, retired = ปลดระวาง (ไม่ระบุ = ทุกสถานะ)"
+     },
+     {
+      "name": "warranty_expire_before",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "หมดประกันก่อนวันที่ (YYYY-MM-DD) — ใช้หาเครื่องที่ประกันใกล้หมด",
+       "title": "Warranty Expire Before"
+      },
+      "description": "หมดประกันก่อนวันที่ (YYYY-MM-DD) — ใช้หาเครื่องที่ประกันใกล้หมด"
+     },
+     {
+      "name": "sort_by",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "description": "field ที่ใช้ sort: brand, category, created_date, purchase_date, status, tool_code, tool_id, tool_name, warranty_expire_date",
+       "default": "created_date",
+       "title": "Sort By"
+      },
+      "description": "field ที่ใช้ sort: brand, category, created_date, purchase_date, status, tool_code, tool_id, tool_name, warranty_expire_date"
+     },
+     {
+      "name": "sort_order",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "enum": [
+        "asc",
+        "desc"
+       ],
+       "type": "string",
+       "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย",
+       "default": "desc",
+       "title": "Sort Order"
+      },
+      "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย"
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 100,
+       "description": "จำนวนรายการสูงสุดที่คืนต่อครั้ง",
+       "default": 20,
+       "title": "Limit"
+      },
+      "description": "จำนวนรายการสูงสุดที่คืนต่อครั้ง"
+     },
+     {
+      "name": "offset",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "description": "จำนวนรายการที่ข้ามจากต้นรายการ (ใช้แบ่งหน้า)",
+       "default": 0,
+       "title": "Offset"
+      },
+      "description": "จำนวนรายการที่ข้ามจากต้นรายการ (ใช้แบ่งหน้า)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/clinical-tool/{tool_id}": {
+   "get": {
+    "tags": [
+     "Clinical Tool"
+    ],
+    "summary": "Get Clinical Tool By Id",
+    "description": "ดูรายละเอียดเครื่องมือทางคลินิกรายเครื่อง (ทุก field รวม serial_no, วันซื้อ,\nวันหมดประกัน, ตำแหน่งที่ตั้ง) — หา tool_id ได้จาก GET /clinical-tool",
+    "operationId": "get_clinical_tool",
+    "parameters": [
+     {
+      "name": "tool_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Tool Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/tool-usage": {
+   "post": {
+    "tags": [
+     "Tool Usage"
+    ],
+    "summary": "Record Tool Usage",
+    "description": "บันทึกการใช้เครื่องมือทางคลินิกในหัตถการ เช่น ยิง Ultraformer ให้คนไข้ —\nระบบ validate ให้ครบ: เครื่องต้องมีจริงและยัง active, encounter ต้องเป็นของ vn เดียวกัน,\nstaff ผู้ใช้เครื่องต้องมีจริงและยัง active, item (inv_id) ต้องเป็นของคนไข้คนเดียวกับ visit,\nเวลาที่ใช้ (used_date) ไม่ส่ง = เวลาที่บันทึก และ stamp ผู้บันทึกจาก token ที่ login",
+    "operationId": "record_tool_usage",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ToolUsageCreate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "get": {
+    "tags": [
+     "Tool Usage"
+    ],
+    "summary": "Get Tool Usages",
+    "description": "ดูประวัติการใช้เครื่องมือทางคลินิก — กรองได้ทั้งราย visit (vn), รายคนไข้ (hn),\nรายเครื่อง (tool_code — ดูว่าเครื่องนี้ถูกใช้ไปกี่ครั้งกับใครบ้าง), รายแพทย์,\nราย staff ผู้ใช้เครื่อง, ราย item (inv_id) และช่วงวันเวลาที่ใช้ (used_from/used_to),\ndefault ไม่รวมรายการที่ถูกยกเลิก (voided) และเรียงตามเวลาที่ใช้ล่าสุดก่อน",
+    "operationId": "list_tool_usages",
+    "parameters": [
+     {
+      "name": "vn",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตามเลข visit (exact match)",
+       "title": "Vn"
+      },
+      "description": "กรองตามเลข visit (exact match)"
+     },
+     {
+      "name": "hn",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม HN คนไข้ (exact match)",
+       "title": "Hn"
+      },
+      "description": "กรองตาม HN คนไข้ (exact match)"
+     },
+     {
+      "name": "encounter_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม encounter (exact match)",
+       "title": "Encounter Id"
+      },
+      "description": "กรองตาม encounter (exact match)"
+     },
+     {
+      "name": "tool_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม tool_id (exact match)",
+       "title": "Tool Id"
+      },
+      "description": "กรองตาม tool_id (exact match)"
+     },
+     {
+      "name": "tool_code",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตามรหัสเครื่องมือ (partial match)",
+       "title": "Tool Code"
+      },
+      "description": "กรองตามรหัสเครื่องมือ (partial match)"
+     },
+     {
+      "name": "doctor_code",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตามรหัสแพทย์ผู้ทำ (exact match)",
+       "title": "Doctor Code"
+      },
+      "description": "กรองตามรหัสแพทย์ผู้ทำ (exact match)"
+     },
+     {
+      "name": "staff_code",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตามรหัส staff ผู้ใช้เครื่อง (partial match)",
+       "title": "Staff Code"
+      },
+      "description": "กรองตามรหัส staff ผู้ใช้เครื่อง (partial match)"
+     },
+     {
+      "name": "inv_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม inv_id ของ item ใน patient_inventory (exact match)",
+       "title": "Inv Id"
+      },
+      "description": "กรองตาม inv_id ของ item ใน patient_inventory (exact match)"
+     },
+     {
+      "name": "include_voided",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "boolean",
+       "description": "true = รวมรายการที่ถูกยกเลิก (voided) ด้วย",
+       "default": false,
+       "title": "Include Voided"
+      },
+      "description": "true = รวมรายการที่ถูกยกเลิก (voided) ด้วย"
+     },
+     {
+      "name": "used_from",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "ใช้เครื่องตั้งแต่วันที่ (YYYY-MM-DD)",
+       "title": "Used From"
+      },
+      "description": "ใช้เครื่องตั้งแต่วันที่ (YYYY-MM-DD)"
+     },
+     {
+      "name": "used_to",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "ใช้เครื่องถึงวันที่ (YYYY-MM-DD)",
+       "title": "Used To"
+      },
+      "description": "ใช้เครื่องถึงวันที่ (YYYY-MM-DD)"
+     },
+     {
+      "name": "created_from",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "บันทึกตั้งแต่วันที่ (YYYY-MM-DD)",
+       "title": "Created From"
+      },
+      "description": "บันทึกตั้งแต่วันที่ (YYYY-MM-DD)"
+     },
+     {
+      "name": "created_to",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "บันทึกถึงวันที่ (YYYY-MM-DD)",
+       "title": "Created To"
+      },
+      "description": "บันทึกถึงวันที่ (YYYY-MM-DD)"
+     },
+     {
+      "name": "sort_by",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "description": "field ที่ใช้ sort: created_date, doctor_code, encounter_id, hn, inv_id, staff_id, status, usage_id, used_date, vn",
+       "default": "used_date",
+       "title": "Sort By"
+      },
+      "description": "field ที่ใช้ sort: created_date, doctor_code, encounter_id, hn, inv_id, staff_id, status, usage_id, used_date, vn"
+     },
+     {
+      "name": "sort_order",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "enum": [
+        "asc",
+        "desc"
+       ],
+       "type": "string",
+       "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย",
+       "default": "desc",
+       "title": "Sort Order"
+      },
+      "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย"
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 100,
+       "description": "จำนวนรายการสูงสุดที่คืนต่อครั้ง",
+       "default": 20,
+       "title": "Limit"
+      },
+      "description": "จำนวนรายการสูงสุดที่คืนต่อครั้ง"
+     },
+     {
+      "name": "offset",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "description": "จำนวนรายการที่ข้ามจากต้นรายการ (ใช้แบ่งหน้า)",
+       "default": 0,
+       "title": "Offset"
+      },
+      "description": "จำนวนรายการที่ข้ามจากต้นรายการ (ใช้แบ่งหน้า)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/tool-usage/{usage_id}": {
+   "get": {
+    "tags": [
+     "Tool Usage"
+    ],
+    "summary": "Get Tool Usage By Id",
+    "description": "ดูบันทึกการใช้เครื่องมือรายรายการ (คืนทุกสถานะรวม voided) พร้อมชื่อเครื่องและชื่อ item",
+    "operationId": "get_tool_usage",
+    "parameters": [
+     {
+      "name": "usage_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Usage Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "Tool Usage"
+    ],
+    "summary": "Void Tool Usage",
+    "description": "ยกเลิกบันทึกการใช้เครื่องมือที่บันทึกผิด (void — ไม่ลบจริงเพื่อคง audit trail):\nตั้ง status = voided พร้อม stamp ผู้ยกเลิกและเวลา, เรียกซ้ำได้ (คงข้อมูล void ครั้งแรกไว้)",
+    "operationId": "void_tool_usage",
+    "parameters": [
+     {
+      "name": "usage_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Usage Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "schemas": {
+  "ClinicalToolRegister": {
+   "properties": {
+    "tool_name": {
+     "type": "string",
+     "title": "Tool Name",
+     "description": "ชื่อเครื่องมือ เช่น Ultraformer III (required)"
+    },
+    "category": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Category",
+     "description": "ประเภทเครื่อง เช่น hifu, laser, rf, ipl, สุขภาพทั่วไป"
+    },
+    "brand": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Brand",
+     "description": "ยี่ห้อ/ผู้ผลิต เช่น Classys"
+    },
+    "model": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Model",
+     "description": "รุ่นของเครื่อง"
+    },
+    "serial_no": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Serial No",
+     "description": "หมายเลขเครื่อง (serial number) — unique กันลงทะเบียนเครื่องเดิมซ้ำ"
+    },
+    "location": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Location",
+     "description": "ตำแหน่งที่ตั้ง/ห้อง เช่น ห้องหัตถการ 2"
+    },
+    "purchase_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Purchase Date",
+     "description": "วันที่ซื้อ (YYYY-MM-DD)"
+    },
+    "warranty_expire_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Warranty Expire Date",
+     "description": "วันหมดประกัน (YYYY-MM-DD)"
+    },
+    "note": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Note",
+     "description": "หมายเหตุ"
+    }
+   },
+   "type": "object",
+   "required": [
+    "tool_name"
+   ],
+   "title": "ClinicalToolRegister",
+   "description": "ลงทะเบียนเครื่องมือ/อุปกรณ์ทางคลินิก — tool_code ไม่ต้องส่ง ระบบ generate ให้เอง (CT-0001)"
+  },
+  "CourseItemDetail": {
+   "properties": {
+    "product_id": {
+     "type": "string",
+     "title": "Product Id",
+     "description": "รหัสสินค้า/หัตถการ",
+     "example": "PROD-001"
+    },
+    "quantity": {
+     "type": "number",
+     "exclusiveMinimum": 0.0,
+     "title": "Quantity",
+     "description": "จำนวนต่อ 1 ชุดคอร์ส ใน 'หน่วยใช้จริง' ของสินค้า (unit_of_use) — เช่น โบท็อกซ์เป็น cc (80 = 80cc), วิตามินเป็นกระปุก (5 = 5 กระปุก) — ตอนสร้าง order ระบบแปลงเป็นหน่วยเก็บ ใน Odoo ให้เองด้วย transfer_qty_coef",
+     "example": 80
+    },
+    "status": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Status",
+     "description": "สถานะรายการย่อย",
+     "default": "active"
+    }
+   },
+   "type": "object",
+   "required": [
+    "product_id",
+    "quantity"
+   ],
+   "title": "CourseItemDetail"
+  },
+  "CourseRegisterRequest": {
+   "properties": {
+    "course_id": {
+     "type": "string",
+     "title": "Course Id",
+     "description": "รหัสคอร์ส (PK)",
+     "example": "C-2026-0001"
+    },
+    "name": {
+     "type": "string",
+     "title": "Name",
+     "description": "ชื่อคอร์ส",
+     "example": "คอร์สหน้าใสผิวออร่า"
+    },
+    "bussiness_course_id": {
+     "type": "string",
+     "title": "Bussiness Course Id",
+     "description": "รหัสคอร์สธุรกิจ",
+     "example": "BC-AURA-01"
+    },
+    "startdate": {
+     "type": "string",
+     "format": "date-time",
+     "title": "Startdate",
+     "description": "วันเริ่มคอร์ส"
+    },
+    "expiredate": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date-time"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Expiredate",
+     "description": "วันหมดอายุ"
+    },
+    "status": {
+     "type": "string",
+     "title": "Status",
+     "description": "สถานะ",
+     "default": "active"
+    },
+    "price": {
+     "type": "number",
+     "title": "Price",
+     "description": "ราคาเต็ม",
+     "example": 9900.0
+    },
+    "course_detail": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Course Detail",
+     "description": "รายละเอียดเพิ่มเติม"
+    },
+    "note": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Note",
+     "description": "หมายเหตุ"
+    },
+    "tag": {
+     "anyOf": [
+      {
+       "items": {
+        "type": "string"
+       },
+       "type": "array"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Tag",
+     "description": "แท็ก",
+     "example": [
+      "ผิวหน้า",
+      "ออร่า"
+     ]
+    },
+    "items": {
+     "items": {
+      "$ref": "#/components/schemas/CourseItemDetail"
+     },
+     "type": "array",
+     "title": "Items",
+     "description": "รายการสินค้าในคอร์ส"
+    }
+   },
+   "type": "object",
+   "required": [
+    "course_id",
+    "name",
+    "bussiness_course_id",
+    "price",
+    "items"
+   ],
+   "title": "CourseRegisterRequest"
+  },
+  "HTTPValidationError": {
+   "properties": {
+    "detail": {
+     "items": {
+      "$ref": "#/components/schemas/ValidationError"
+     },
+     "type": "array",
+     "title": "Detail"
+    }
+   },
+   "type": "object",
+   "title": "HTTPValidationError"
+  },
+  "ToolUsageCreate": {
+   "properties": {
+    "tool_code": {
+     "type": "string",
+     "title": "Tool Code",
+     "description": "รหัสเครื่องมือที่ใช้ (จาก POST /clinical-tool/register เช่น CT-0001)"
+    },
+    "vn": {
+     "type": "string",
+     "title": "Vn",
+     "description": "เลข visit ที่ทำหัตถการ (จาก GET /visit)"
+    },
+    "encounter_id": {
+     "type": "integer",
+     "title": "Encounter Id",
+     "description": "encounter ที่ทำหัตถการ — ต้องเป็น encounter ของ vn เดียวกัน (จาก GET /encounter)"
+    },
+    "doctor_code": {
+     "type": "string",
+     "title": "Doctor Code",
+     "description": "รหัสแพทย์ผู้ทำหัตถการ (จาก GET /doctor)"
+    },
+    "staff_code": {
+     "type": "string",
+     "title": "Staff Code",
+     "description": "รหัส staff ผู้ใช้เครื่อง (จาก GET /staff เช่น ST-0001) — เป็นคนละคนกับแพทย์ได้ เช่น therapist เป็นคนยิงเครื่อง"
+    },
+    "inv_id": {
+     "type": "integer",
+     "title": "Inv Id",
+     "description": "inv_id ของ item ใน patient_inventory ที่หัตถการนี้ตัดใช้ (จาก GET /patient-inventory) — ต้องเป็นของคนไข้คนเดียวกับ visit"
+    },
+    "used_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date-time"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Used Date",
+     "description": "วันเวลาที่ใช้เครื่องจริง (ISO เช่น 2026-07-08T14:30:00) — ไม่ส่ง = ใช้เวลาที่บันทึก (เผื่อบันทึกย้อนหลัง)"
+    },
+    "usage_detail": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Usage Detail",
+     "description": "พารามิเตอร์การใช้งาน เช่น 300 shots / 2.0 J / หัว 4.5mm"
+    },
+    "note": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Note",
+     "description": "หมายเหตุ"
+    }
+   },
+   "type": "object",
+   "required": [
+    "tool_code",
+    "vn",
+    "encounter_id",
+    "doctor_code",
+    "staff_code",
+    "inv_id"
+   ],
+   "title": "ToolUsageCreate",
+   "description": "บันทึกการใช้เครื่องมือทางคลินิกในหัตถการ — ผูกกับ visit (vn), encounter,\nแพทย์ผู้ทำ, staff ผู้ใช้เครื่อง และ item ใน patient_inventory ที่หัตถการนี้ตัดใช้"
+  },
+  "ValidationError": {
+   "properties": {
+    "loc": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "integer"
+       }
+      ]
+     },
+     "type": "array",
+     "title": "Location"
+    },
+    "msg": {
+     "type": "string",
+     "title": "Message"
+    },
+    "type": {
+     "type": "string",
+     "title": "Error Type"
+    },
+    "input": {
+     "title": "Input"
+    },
+    "ctx": {
+     "type": "object",
+     "title": "Context"
+    }
+   },
+   "type": "object",
+   "required": [
+    "loc",
+    "msg",
+    "type"
+   ],
+   "title": "ValidationError"
+  }
+ }
+}

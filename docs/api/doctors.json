@@ -1,0 +1,995 @@
+{
+ "module": "doctors",
+ "note": "Extracted from SuperHIS FastAPI openapi.json. Base URL via Next proxy: /api/his",
+ "paths": {
+  "/doctor/df-cap": {
+   "patch": {
+    "tags": [
+     "Doctor"
+    ],
+    "summary": "Update Df Cap",
+    "description": "ปรับเพดาน DF ต่อรายการของหมอ — ค่าเริ่มแรกตั้งได้ตอน register (field df_cap)",
+    "operationId": "update_df_cap_doctor_df_cap_patch",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DFCapUpdate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/doctor/register": {
+   "post": {
+    "tags": [
+     "Doctor"
+    ],
+    "summary": "Register Doctor",
+    "operationId": "register_doctor_doctor_register_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DoctorRegister"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/doctor": {
+   "get": {
+    "tags": [
+     "Doctor"
+    ],
+    "summary": "Get Doctors",
+    "description": "ค้นหา/ดูรายชื่อแพทย์ในระบบ — ไม่มี default filter active/inactive (is_active ต้องระบุเองถ้าต้องการกรอง),\ndoctor_code ที่ได้จาก response นี้ใช้เป็น FK ในการสร้าง encounter, บันทึก DF และโยง staff",
+    "operationId": "list_doctors",
+    "parameters": [
+     {
+      "name": "doctor_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม doctor_id (exact match)",
+       "title": "Doctor Id"
+      },
+      "description": "กรองตาม doctor_id (exact match)"
+     },
+     {
+      "name": "doctor_code",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "รหัสแพทย์ (partial match)",
+       "title": "Doctor Code"
+      },
+      "description": "รหัสแพทย์ (partial match)"
+     },
+     {
+      "name": "pname",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "คำนำหน้าชื่อ (partial match)",
+       "title": "Pname"
+      },
+      "description": "คำนำหน้าชื่อ (partial match)"
+     },
+     {
+      "name": "firstname",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "ชื่อ (partial match)",
+       "title": "Firstname"
+      },
+      "description": "ชื่อ (partial match)"
+     },
+     {
+      "name": "lastname",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "นามสกุล (partial match)",
+       "title": "Lastname"
+      },
+      "description": "นามสกุล (partial match)"
+     },
+     {
+      "name": "gender",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "เพศ: 1 = ชาย, 2 = หญิง",
+       "title": "Gender"
+      },
+      "description": "เพศ: 1 = ชาย, 2 = หญิง"
+     },
+     {
+      "name": "ward",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "แผนก/หอผู้ป่วย (partial match)",
+       "title": "Ward"
+      },
+      "description": "แผนก/หอผู้ป่วย (partial match)"
+     },
+     {
+      "name": "phone_no",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "เบอร์โทรศัพท์ (partial match)",
+       "title": "Phone No"
+      },
+      "description": "เบอร์โทรศัพท์ (partial match)"
+     },
+     {
+      "name": "address",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "ที่อยู่ (partial match)",
+       "title": "Address"
+      },
+      "description": "ที่อยู่ (partial match)"
+     },
+     {
+      "name": "is_active",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "สถานะการทำงาน",
+       "title": "Is Active"
+      },
+      "description": "สถานะการทำงาน"
+     },
+     {
+      "name": "note",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "หมายเหตุ (partial match)",
+       "title": "Note"
+      },
+      "description": "หมายเหตุ (partial match)"
+     },
+     {
+      "name": "created_from",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "สร้างตั้งแต่วันที่ (YYYY-MM-DD)",
+       "title": "Created From"
+      },
+      "description": "สร้างตั้งแต่วันที่ (YYYY-MM-DD)"
+     },
+     {
+      "name": "created_to",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "สร้างถึงวันที่ (YYYY-MM-DD)",
+       "title": "Created To"
+      },
+      "description": "สร้างถึงวันที่ (YYYY-MM-DD)"
+     },
+     {
+      "name": "resign_from",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "วันที่ลาออกตั้งแต่ (YYYY-MM-DD)",
+       "title": "Resign From"
+      },
+      "description": "วันที่ลาออกตั้งแต่ (YYYY-MM-DD)"
+     },
+     {
+      "name": "resign_to",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "วันที่ลาออกถึง (YYYY-MM-DD)",
+       "title": "Resign To"
+      },
+      "description": "วันที่ลาออกถึง (YYYY-MM-DD)"
+     },
+     {
+      "name": "sort_by",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "description": "field ที่ใช้ sort: created_date, df_cap, doctor_code, doctor_id, firstname, gender, is_active, lastname, phone_no, pname, resign_date, ward",
+       "default": "created_date",
+       "title": "Sort By"
+      },
+      "description": "field ที่ใช้ sort: created_date, df_cap, doctor_code, doctor_id, firstname, gender, is_active, lastname, phone_no, pname, resign_date, ward"
+     },
+     {
+      "name": "sort_order",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "enum": [
+        "asc",
+        "desc"
+       ],
+       "type": "string",
+       "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย",
+       "default": "desc",
+       "title": "Sort Order"
+      },
+      "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย"
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 100,
+       "description": "จำนวนรายการสูงสุดที่คืนต่อครั้ง",
+       "default": 20,
+       "title": "Limit"
+      },
+      "description": "จำนวนรายการสูงสุดที่คืนต่อครั้ง"
+     },
+     {
+      "name": "offset",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "description": "จำนวนรายการที่ข้ามจากต้นรายการ (ใช้แบ่งหน้า)",
+       "default": 0,
+       "title": "Offset"
+      },
+      "description": "จำนวนรายการที่ข้ามจากต้นรายการ (ใช้แบ่งหน้า)"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/doctor-investigate": {
+   "post": {
+    "tags": [
+     "Doctor Investigate"
+    ],
+    "summary": "Create Doctor Investigate",
+    "description": "บันทึก SOAP Note จากการตรวจของแพทย์ ผูกกับ encounter_id (เนื้อหาเป็น freetext)",
+    "operationId": "create_doctor_investigate_doctor_investigate_post",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DoctorInvestigateCreate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "get": {
+    "tags": [
+     "Doctor Investigate"
+    ],
+    "summary": "Get Doctor Investigates",
+    "description": "ค้นหา SOAP Note แบบ flat list พร้อม vn และ doctor_code แนบมาจาก encounter —\nใช้กรองด้วย encounter_id หรือ vn เพื่อดู SOAP ของ encounter/visit ที่ต้องการ,\nถ้าต้องการโครงสร้างซ้อน hn → visit → encounter → investigate ให้ใช้ GET /doctor-investigate/by-hn/{hn} แทน",
+    "operationId": "list_doctor_investigates",
+    "parameters": [
+     {
+      "name": "investigate_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม investigate_id (exact match)",
+       "title": "Investigate Id"
+      },
+      "description": "กรองตาม investigate_id (exact match)"
+     },
+     {
+      "name": "encounter_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม encounter_id (exact match)",
+       "title": "Encounter Id"
+      },
+      "description": "กรองตาม encounter_id (exact match)"
+     },
+     {
+      "name": "vn",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม Visit ของ encounter",
+       "title": "Vn"
+      },
+      "description": "กรองตาม Visit ของ encounter"
+     },
+     {
+      "name": "created_by",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม doctor_code ผู้บันทึก",
+       "title": "Created By"
+      },
+      "description": "กรองตาม doctor_code ผู้บันทึก"
+     },
+     {
+      "name": "date_from",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "วันที่บันทึกตั้งแต่ (YYYY-MM-DD)",
+       "title": "Date From"
+      },
+      "description": "วันที่บันทึกตั้งแต่ (YYYY-MM-DD)"
+     },
+     {
+      "name": "date_to",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "วันที่บันทึกถึง (YYYY-MM-DD)",
+       "title": "Date To"
+      },
+      "description": "วันที่บันทึกถึง (YYYY-MM-DD)"
+     },
+     {
+      "name": "sort_by",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "description": "field ที่ใช้ sort: created_date, encounter_id, investigate_id, updated_date",
+       "default": "created_date",
+       "title": "Sort By"
+      },
+      "description": "field ที่ใช้ sort: created_date, encounter_id, investigate_id, updated_date"
+     },
+     {
+      "name": "sort_order",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "enum": [
+        "asc",
+        "desc"
+       ],
+       "type": "string",
+       "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย",
+       "default": "desc",
+       "title": "Sort Order"
+      },
+      "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/doctor-investigate/by-hn/{hn}": {
+   "get": {
+    "tags": [
+     "Doctor Investigate"
+    ],
+    "summary": "Get Doctor Investigates By Hn",
+    "description": "ประวัติ SOAP Note ทั้งหมดของผู้ป่วยรายคน ไล่ตามลำดับชั้น hn → visit (หลาย vn) →\nencounter (หลายรายการต่อ vn) → investigate โดยคืนโครงสร้างซ้อนตามชั้น\n(visit/encounter ที่ยังไม่มีบันทึกจะติดมาด้วยพร้อม list ว่าง — ให้ frontend เห็นครบทุก visit),\nใช้ hn จาก GET /patient; ถ้าต้องการ SOAP ของ visit เดียวใช้ GET /doctor-investigate/by-vn/{vn} แทน",
+    "operationId": "get_doctor_investigates_by_hn",
+    "parameters": [
+     {
+      "name": "hn",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Hn"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/doctor-investigate/by-vn/{vn}": {
+   "get": {
+    "tags": [
+     "Doctor Investigate"
+    ],
+    "summary": "Get Doctor Investigates By Vn",
+    "description": "SOAP Note ทั้งหมดของ visit เดียว (vn → encounter หลายรายการ → investigate) —\nโครงสร้างชั้น encounter/investigate เหมือน /by-hn แต่ data เป็น visit เดียวและแนบ hn มาใน response,\nใช้สำหรับหน้าตรวจที่รู้ vn อยู่แล้ว; 404 ถ้า vn ไม่มีในระบบ",
+    "operationId": "get_doctor_investigates_by_vn",
+    "parameters": [
+     {
+      "name": "vn",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Vn"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "schemas": {
+  "DFCapUpdate": {
+   "properties": {
+    "doctor_code": {
+     "type": "string",
+     "title": "Doctor Code",
+     "description": "รหัสแพทย์"
+    },
+    "df_cap": {
+     "anyOf": [
+      {
+       "type": "number",
+       "minimum": 0.0
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Df Cap",
+     "description": "เพดาน DF ต่อรายการของหมอคนนี้ (บาท) — null = ไม่จำกัด (ใช้กันคีย์เลขผิดตอนบันทึก DF)"
+    }
+   },
+   "type": "object",
+   "required": [
+    "doctor_code"
+   ],
+   "title": "DFCapUpdate"
+  },
+  "DoctorInvestigateCreate": {
+   "properties": {
+    "encounter_id": {
+     "type": "integer",
+     "title": "Encounter Id",
+     "description": "Encounter ที่ทำการตรวจ (required)"
+    },
+    "subjective": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Subjective",
+     "description": "S — อาการ/สิ่งที่ผู้ป่วยบอกเล่า (freetext)"
+    },
+    "objective": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Objective",
+     "description": "O — สิ่งที่แพทย์ตรวจพบ (freetext)"
+    },
+    "assessment": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Assessment",
+     "description": "A — การประเมิน/วินิจฉัย (freetext)"
+    },
+    "plan": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Plan",
+     "description": "P — แผนการรักษา (freetext)"
+    },
+    "note": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Note",
+     "description": "Remark เพิ่มเติมของแพทย์ (freetext, ไม่นับเป็นช่อง SOAP)"
+    },
+    "created_by": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Created By",
+     "description": "doctor_code ผู้บันทึก (optional)"
+    }
+   },
+   "type": "object",
+   "required": [
+    "encounter_id"
+   ],
+   "title": "DoctorInvestigateCreate"
+  },
+  "DoctorRegister": {
+   "properties": {
+    "pname": {
+     "type": "string",
+     "title": "Pname",
+     "description": "คำนำหน้าชื่อ (required)"
+    },
+    "firstname": {
+     "type": "string",
+     "title": "Firstname",
+     "description": "ชื่อ (required)"
+    },
+    "lastname": {
+     "type": "string",
+     "title": "Lastname",
+     "description": "นามสกุล (required)"
+    },
+    "doctor_code": {
+     "type": "string",
+     "title": "Doctor Code",
+     "description": "รหัสแพทย์ (required)"
+    },
+    "gender": {
+     "type": "integer",
+     "title": "Gender",
+     "description": "เพศ: 1 = ชาย, 2 = หญิง (required)"
+    },
+    "ward": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Ward"
+    },
+    "phone_no": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Phone No"
+    },
+    "address": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Address"
+    },
+    "note": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Note"
+    },
+    "df_cap": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Df Cap"
+    }
+   },
+   "type": "object",
+   "required": [
+    "pname",
+    "firstname",
+    "lastname",
+    "doctor_code",
+    "gender"
+   ],
+   "title": "DoctorRegister"
+  },
+  "HTTPValidationError": {
+   "properties": {
+    "detail": {
+     "items": {
+      "$ref": "#/components/schemas/ValidationError"
+     },
+     "type": "array",
+     "title": "Detail"
+    }
+   },
+   "type": "object",
+   "title": "HTTPValidationError"
+  },
+  "ValidationError": {
+   "properties": {
+    "loc": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "integer"
+       }
+      ]
+     },
+     "type": "array",
+     "title": "Location"
+    },
+    "msg": {
+     "type": "string",
+     "title": "Message"
+    },
+    "type": {
+     "type": "string",
+     "title": "Error Type"
+    },
+    "input": {
+     "title": "Input"
+    },
+    "ctx": {
+     "type": "object",
+     "title": "Context"
+    }
+   },
+   "type": "object",
+   "required": [
+    "loc",
+    "msg",
+    "type"
+   ],
+   "title": "ValidationError"
+  }
+ }
+}

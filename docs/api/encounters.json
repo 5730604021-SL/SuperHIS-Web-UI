@@ -1,0 +1,466 @@
+{
+ "module": "encounters",
+ "note": "Extracted from SuperHIS FastAPI openapi.json. Base URL via Next proxy: /api/his",
+ "paths": {
+  "/encounter": {
+   "post": {
+    "tags": [
+     "Encounter"
+    ],
+    "summary": "Create Encounter",
+    "operationId": "create_encounter_encounter_post",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/EncounterCreate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "get": {
+    "tags": [
+     "Encounter"
+    ],
+    "summary": "Get Encounters",
+    "description": "ดูรายการ encounter (การพบแพทย์) ต่อ visit — แนบชื่อหมอจากตาราง his_doctor มาด้วย\nvn ได้จาก GET /visit, doctor_code ได้จาก GET /staff — กรอง date_from/date_to ด้วย requestdate (วันที่สร้าง encounter)",
+    "operationId": "list_encounters",
+    "parameters": [
+     {
+      "name": "encounter_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "ID ของ encounter (exact match) — ระบุเพื่อดูรายการเดียว",
+       "title": "Encounter Id"
+      },
+      "description": "ID ของ encounter (exact match) — ระบุเพื่อดูรายการเดียว"
+     },
+     {
+      "name": "vn",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "เลขที่ visit (exact match) — ได้จาก GET /visit",
+       "title": "Vn"
+      },
+      "description": "เลขที่ visit (exact match) — ได้จาก GET /visit"
+     },
+     {
+      "name": "doctor_code",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "รหัสแพทย์ (exact match) — ได้จาก GET /staff",
+       "title": "Doctor Code"
+      },
+      "description": "รหัสแพทย์ (exact match) — ได้จาก GET /staff"
+     },
+     {
+      "name": "status",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "$ref": "#/components/schemas/EncounterStatus"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "สถานะ encounter — ไม่ระบุ = คืนทุกสถานะ",
+       "title": "Status"
+      },
+      "description": "สถานะ encounter — ไม่ระบุ = คืนทุกสถานะ"
+     },
+     {
+      "name": "date_from",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "วันที่ Request ตั้งแต่ (YYYY-MM-DD)",
+       "title": "Date From"
+      },
+      "description": "วันที่ Request ตั้งแต่ (YYYY-MM-DD)"
+     },
+     {
+      "name": "date_to",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "วันที่ Request ถึง (YYYY-MM-DD)",
+       "title": "Date To"
+      },
+      "description": "วันที่ Request ถึง (YYYY-MM-DD)"
+     },
+     {
+      "name": "sort_by",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "description": "field ที่ใช้ sort: doctor_code, encounter_id, requestdate, status, type, vn",
+       "default": "requestdate",
+       "title": "Sort By"
+      },
+      "description": "field ที่ใช้ sort: doctor_code, encounter_id, requestdate, status, type, vn"
+     },
+     {
+      "name": "sort_order",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "enum": [
+        "asc",
+        "desc"
+       ],
+       "type": "string",
+       "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย",
+       "default": "desc",
+       "title": "Sort Order"
+      },
+      "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/encounter/status": {
+   "patch": {
+    "tags": [
+     "Encounter"
+    ],
+    "summary": "Update Encounter Status",
+    "operationId": "update_encounter_status_encounter_status_patch",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/EncounterStatusUpdate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/encounter/summary": {
+   "patch": {
+    "tags": [
+     "Encounter"
+    ],
+    "summary": "Update Encounter Summary",
+    "operationId": "update_encounter_summary_encounter_summary_patch",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/EncounterSummaryUpdate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "schemas": {
+  "EncounterCreate": {
+   "properties": {
+    "vn": {
+     "type": "string",
+     "title": "Vn",
+     "description": "รหัส Visit (required)"
+    },
+    "cheif_complaint": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Cheif Complaint"
+    },
+    "doctor_code": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Doctor Code"
+    },
+    "note": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Note"
+    },
+    "type": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Type"
+    },
+    "requestdate": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date-time"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Requestdate"
+    }
+   },
+   "type": "object",
+   "required": [
+    "vn"
+   ],
+   "title": "EncounterCreate"
+  },
+  "EncounterStatus": {
+   "type": "string",
+   "enum": [
+    "pending",
+    "ongoing",
+    "done",
+    "cancel",
+    "postpone"
+   ],
+   "title": "EncounterStatus"
+  },
+  "EncounterStatusUpdate": {
+   "properties": {
+    "encounter_id": {
+     "type": "integer",
+     "title": "Encounter Id",
+     "description": "Encounter ID ที่ต้องการอัปเดตสถานะ"
+    },
+    "status": {
+     "$ref": "#/components/schemas/EncounterStatus",
+     "description": "สถานะใหม่"
+    }
+   },
+   "type": "object",
+   "required": [
+    "encounter_id",
+    "status"
+   ],
+   "title": "EncounterStatusUpdate"
+  },
+  "EncounterSummaryUpdate": {
+   "properties": {
+    "encounter_id": {
+     "type": "integer",
+     "title": "Encounter Id",
+     "description": "Encounter ID ที่ต้องการอัปเดต summary"
+    },
+    "summary_text": {
+     "type": "string",
+     "title": "Summary Text",
+     "description": "เนื้อหา summary ใหม่"
+    }
+   },
+   "type": "object",
+   "required": [
+    "encounter_id",
+    "summary_text"
+   ],
+   "title": "EncounterSummaryUpdate"
+  },
+  "HTTPValidationError": {
+   "properties": {
+    "detail": {
+     "items": {
+      "$ref": "#/components/schemas/ValidationError"
+     },
+     "type": "array",
+     "title": "Detail"
+    }
+   },
+   "type": "object",
+   "title": "HTTPValidationError"
+  },
+  "ValidationError": {
+   "properties": {
+    "loc": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "integer"
+       }
+      ]
+     },
+     "type": "array",
+     "title": "Location"
+    },
+    "msg": {
+     "type": "string",
+     "title": "Message"
+    },
+    "type": {
+     "type": "string",
+     "title": "Error Type"
+    },
+    "input": {
+     "title": "Input"
+    },
+    "ctx": {
+     "type": "object",
+     "title": "Context"
+    }
+   },
+   "type": "object",
+   "required": [
+    "loc",
+    "msg",
+    "type"
+   ],
+   "title": "ValidationError"
+  }
+ }
+}

@@ -1,0 +1,668 @@
+{
+ "module": "orders",
+ "note": "Extracted from SuperHIS FastAPI openapi.json. Base URL via Next proxy: /api/his",
+ "paths": {
+  "/partners": {
+   "get": {
+    "tags": [
+     "Partners"
+    ],
+    "summary": "Get Partners",
+    "description": "ดึงรายชื่อ Odoo Partner (res.partner) — ข้อมูลมาสดจาก Odoo ทุกครั้ง\nPartner ในที่นี้คือผู้ป่วยที่ถูก register เข้า Odoo แล้วผ่าน POST /partners/register/{hn}\nคืนเฉพาะ field: id, name, email, phone — default limit 10 รายการ (สูงสุด 50)\nใช้ id ที่ได้จาก response นี้เป็น partner_id ต่อใน Odoo workflow",
+    "operationId": "list_partners",
+    "parameters": [
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 50,
+       "description": "จำนวนรายการสูงสุดที่คืนต่อครั้ง",
+       "default": 10,
+       "title": "Limit"
+      },
+      "description": "จำนวนรายการสูงสุดที่คืนต่อครั้ง"
+     },
+     {
+      "name": "sort_by",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "description": "field ที่ใช้ sort: email, id, name, phone",
+       "default": "id",
+       "title": "Sort By"
+      },
+      "description": "field ที่ใช้ sort: email, id, name, phone"
+     },
+     {
+      "name": "sort_order",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "enum": [
+        "asc",
+        "desc"
+       ],
+       "type": "string",
+       "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย",
+       "default": "desc",
+       "title": "Sort Order"
+      },
+      "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/partners/register/{hn}": {
+   "post": {
+    "tags": [
+     "Partners"
+    ],
+    "summary": "Register Partner",
+    "operationId": "register_partner_partners_register__hn__post",
+    "parameters": [
+     {
+      "name": "hn",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Hn"
+      }
+     }
+    ],
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/invoice": {
+   "post": {
+    "tags": [
+     "Invoice"
+    ],
+    "summary": "Create Invoice",
+    "operationId": "create_invoice_invoice_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/InvoiceCreateRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/payment/status/{order_id}": {
+   "get": {
+    "tags": [
+     "Payment"
+    ],
+    "summary": "Get Payment Status",
+    "description": "ตรวจสถานะการชำระเงินของ Sale Order จาก Odoo — ข้อมูลมาสดจาก Odoo ทุกครั้ง\norder_id ได้จาก POST /order (Odoo sale.order id) ไม่ใช่ medication_order_id ของระบบ HIS\nคืน status: paid (ชำระครบ), unpaid (ยังไม่มี invoice หรือยังไม่จ่าย), partial_paid (จ่ายบางส่วน)\nรวม paid_invoices, remaining_invoices และ remaining_amount ใน response",
+    "operationId": "get_payment_status",
+    "parameters": [
+     {
+      "name": "order_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Order Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/order": {
+   "get": {
+    "tags": [
+     "Order"
+    ],
+    "summary": "Get Orders",
+    "description": "ดูรายการ sale.order จาก Odoo — คืน order ที่ is_active=true เท่านั้น (order ที่ถูกลบ soft-delete จะไม่ปรากฏ)\nแต่ละ order มี items (sale.order.line) แนบมาใน field items (batch read ไม่ทำ N+1)\nข้อมูลมาสดจาก Odoo, default แสดง 20 รายการล่าสุดตาม date_order",
+    "operationId": "list_orders",
+    "parameters": [
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 100,
+       "description": "จำนวนรายการสูงสุดที่คืนต่อครั้ง",
+       "default": 20,
+       "title": "Limit"
+      },
+      "description": "จำนวนรายการสูงสุดที่คืนต่อครั้ง"
+     },
+     {
+      "name": "offset",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "description": "จำนวนรายการที่ข้ามจากต้นรายการ (ใช้แบ่งหน้า)",
+       "default": 0,
+       "title": "Offset"
+      },
+      "description": "จำนวนรายการที่ข้ามจากต้นรายการ (ใช้แบ่งหน้า)"
+     },
+     {
+      "name": "state",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "draft | sale | done | cancel — exact match",
+       "title": "State"
+      },
+      "description": "draft | sale | done | cancel — exact match"
+     },
+     {
+      "name": "partner_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "Odoo Customer ID — exact match",
+       "title": "Partner Id"
+      },
+      "description": "Odoo Customer ID — exact match"
+     },
+     {
+      "name": "sort_by",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "description": "field ที่ใช้ sort: amount_tax, amount_total, amount_untaxed, date_order, id, name, state",
+       "default": "date_order",
+       "title": "Sort By"
+      },
+      "description": "field ที่ใช้ sort: amount_tax, amount_total, amount_untaxed, date_order, id, name, state"
+     },
+     {
+      "name": "sort_order",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "enum": [
+        "asc",
+        "desc"
+       ],
+       "type": "string",
+       "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย",
+       "default": "desc",
+       "title": "Sort Order"
+      },
+      "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "tags": [
+     "Order"
+    ],
+    "summary": "Create Order",
+    "operationId": "create_order_order_post",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/OrderCreateRequest"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/order/{order_id}": {
+   "delete": {
+    "tags": [
+     "Order"
+    ],
+    "summary": "Delete Order",
+    "operationId": "delete_order_order__order_id__delete",
+    "parameters": [
+     {
+      "name": "order_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Order Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "schemas": {
+  "HTTPValidationError": {
+   "properties": {
+    "detail": {
+     "items": {
+      "$ref": "#/components/schemas/ValidationError"
+     },
+     "type": "array",
+     "title": "Detail"
+    }
+   },
+   "type": "object",
+   "title": "HTTPValidationError"
+  },
+  "InvoiceCreateRequest": {
+   "properties": {
+    "order_id": {
+     "type": "integer",
+     "title": "Order Id",
+     "description": "Odoo Sale Order ID"
+    },
+    "mode": {
+     "type": "string",
+     "enum": [
+      "full",
+      "down"
+     ],
+     "title": "Mode",
+     "description": "full = ออกเต็มจำนวน, down = มัดจำ"
+    },
+    "amount": {
+     "anyOf": [
+      {
+       "type": "number",
+       "exclusiveMinimum": 0.0
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Amount",
+     "description": "มัดจำแบบระบุจำนวนเงิน (บาท)"
+    },
+    "amount_percent": {
+     "anyOf": [
+      {
+       "type": "number",
+       "maximum": 100.0,
+       "exclusiveMinimum": 0.0
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Amount Percent",
+     "description": "มัดจำแบบ % (0–100)"
+    }
+   },
+   "type": "object",
+   "required": [
+    "order_id",
+    "mode"
+   ],
+   "title": "InvoiceCreateRequest"
+  },
+  "OrderCreateRequest": {
+   "properties": {
+    "hn": {
+     "type": "string",
+     "title": "Hn",
+     "description": "รหัสผู้ป่วย (required)"
+    },
+    "partner_id": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Partner Id",
+     "description": "Odoo Partner ID (ถ้าไม่ใส่จะ search จาก HN)"
+    },
+    "vn": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Vn"
+    },
+    "package_id": {
+     "anyOf": [
+      {
+       "items": {
+        "$ref": "#/components/schemas/PackageItem"
+       },
+       "type": "array"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Package Id"
+    },
+    "product_id": {
+     "anyOf": [
+      {
+       "items": {
+        "$ref": "#/components/schemas/ProductItem"
+       },
+       "type": "array"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Product Id"
+    },
+    "agent_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Agent Id"
+    },
+    "is_vat": {
+     "type": "boolean",
+     "title": "Is Vat",
+     "default": false
+    },
+    "is_service_charge": {
+     "type": "boolean",
+     "title": "Is Service Charge",
+     "default": false
+    },
+    "medication_order_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Medication Order Id",
+     "description": "อ้างอิงใบสั่งยา (ถ้า order นี้คือการจ่ายยาตามใบสั่ง) — จะถูก stamp ลง patient_inventory ทุกแถวของ order นี้"
+    },
+    "doctor_code": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Doctor Code",
+     "description": "หมอเจ้าของ order (optional — order ไม่มีหมอก็สร้างได้)"
+    },
+    "df_amount": {
+     "anyOf": [
+      {
+       "type": "number",
+       "exclusiveMinimum": 0.0
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Df Amount",
+     "description": "ค่าแพทย์ (DF) ที่เก็บจากลูกค้าในบิลนี้ — ระบบใส่สินค้า DF 1 บาท × จำนวนนี้ให้เอง (ต้องระบุ doctor_code ด้วย) ใช้กับเคสขายขาด/ทำจบวันนั้น ส่วน DF ของคอร์สให้บันทึกผ่าน POST /df ตอนใช้"
+    }
+   },
+   "type": "object",
+   "required": [
+    "hn"
+   ],
+   "title": "OrderCreateRequest"
+  },
+  "PackageItem": {
+   "properties": {
+    "id": {
+     "type": "string",
+     "title": "Id",
+     "description": "รหัส Package / Course"
+    },
+    "quantity": {
+     "type": "integer",
+     "minimum": 1.0,
+     "title": "Quantity",
+     "description": "จำนวนชุด Package",
+     "default": 1
+    }
+   },
+   "type": "object",
+   "required": [
+    "id"
+   ],
+   "title": "PackageItem"
+  },
+  "ProductItem": {
+   "properties": {
+    "id": {
+     "type": "integer",
+     "title": "Id",
+     "description": "Odoo product.product ID"
+    },
+    "quantity": {
+     "type": "number",
+     "exclusiveMinimum": 0.0,
+     "title": "Quantity",
+     "description": "จำนวนสินค้าใน 'หน่วยใช้จริง' (unit_of_use) — เช่น โบท็อกซ์ขวดละ 100cc ระบุเป็น cc (80 = 80cc), วิตามินขายเป็นกระปุกระบุจำนวนกระปุกตามปกติ (สินค้าที่ transfer_qty_coef=1 เลขเท่าหน่วย Odoo อยู่แล้ว) — ระบบแปลงเป็นหน่วยเก็บใน Odoo ให้เองตอนสร้าง order",
+     "default": 1
+    }
+   },
+   "type": "object",
+   "required": [
+    "id"
+   ],
+   "title": "ProductItem"
+  },
+  "ValidationError": {
+   "properties": {
+    "loc": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "integer"
+       }
+      ]
+     },
+     "type": "array",
+     "title": "Location"
+    },
+    "msg": {
+     "type": "string",
+     "title": "Message"
+    },
+    "type": {
+     "type": "string",
+     "title": "Error Type"
+    },
+    "input": {
+     "title": "Input"
+    },
+    "ctx": {
+     "type": "object",
+     "title": "Context"
+    }
+   },
+   "type": "object",
+   "required": [
+    "loc",
+    "msg",
+    "type"
+   ],
+   "title": "ValidationError"
+  }
+ }
+}

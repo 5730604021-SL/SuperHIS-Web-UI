@@ -1,0 +1,801 @@
+{
+ "module": "visits",
+ "note": "Extracted from SuperHIS FastAPI openapi.json. Base URL via Next proxy: /api/his",
+ "paths": {
+  "/visit/appointment": {
+   "post": {
+    "tags": [
+     "Visit"
+    ],
+    "summary": "Create Appointment",
+    "operationId": "create_appointment_visit_appointment_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AppointmentCreate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/visit/arrival": {
+   "patch": {
+    "tags": [
+     "Visit"
+    ],
+    "summary": "Mark Arrival",
+    "operationId": "mark_arrival_visit_arrival_patch",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ArrivalPayload"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/visit/finish": {
+   "patch": {
+    "tags": [
+     "Visit"
+    ],
+    "summary": "Finish Visit",
+    "operationId": "finish_visit_visit_finish_patch",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/FinishPayload"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/visit/request": {
+   "post": {
+    "tags": [
+     "Visit"
+    ],
+    "summary": "Create Visit Request",
+    "operationId": "create_visit_request_visit_request_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/VisitRequestPayload"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/visit": {
+   "get": {
+    "tags": [
+     "Visit"
+    ],
+    "summary": "Get Visits",
+    "description": "ค้นหา/ดูรายการ visit ของผู้ป่วย — response จัดกลุ่ม visit_request ไว้ใน requests[]\nvn ที่ได้จาก response นี้ใช้เป็น key สำหรับ GET /encounter, GET /df, GET /df/suggest ฯลฯ\nกรอง appointment_date_from/to ด้วย appointmentdate (วันนัด) ไม่ใช่วันที่เข้ารับบริการจริง",
+    "operationId": "list_visits",
+    "parameters": [
+     {
+      "name": "vn",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "เลขที่ visit (exact match)",
+       "title": "Vn"
+      },
+      "description": "เลขที่ visit (exact match)"
+     },
+     {
+      "name": "hn",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "เลขที่ผู้ป่วย (exact match) — ได้จาก GET /patient",
+       "title": "Hn"
+      },
+      "description": "เลขที่ผู้ป่วย (exact match) — ได้จาก GET /patient"
+     },
+     {
+      "name": "appointment_date_from",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "วันที่นัดหมาย ตั้งแต่ (YYYY-MM-DD)",
+       "title": "Appointment Date From"
+      },
+      "description": "วันที่นัดหมาย ตั้งแต่ (YYYY-MM-DD)"
+     },
+     {
+      "name": "appointment_date_to",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "วันที่นัดหมาย ถึง (YYYY-MM-DD)",
+       "title": "Appointment Date To"
+      },
+      "description": "วันที่นัดหมาย ถึง (YYYY-MM-DD)"
+     },
+     {
+      "name": "sort_by",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "description": "field ที่ใช้ sort: agent_id, appointmentdate, body_temp, bp_diastolic, bp_systolic, checkout_date, createdate, heartrate, height, hn, nurse_id, respiratory_rate, status, visitdate, vn, weight",
+       "default": "createdate",
+       "title": "Sort By"
+      },
+      "description": "field ที่ใช้ sort: agent_id, appointmentdate, body_temp, bp_diastolic, bp_systolic, checkout_date, createdate, heartrate, height, hn, nurse_id, respiratory_rate, status, visitdate, vn, weight"
+     },
+     {
+      "name": "sort_order",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "enum": [
+        "asc",
+        "desc"
+       ],
+       "type": "string",
+       "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย",
+       "default": "desc",
+       "title": "Sort Order"
+      },
+      "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/prescreening/{vn}": {
+   "patch": {
+    "tags": [
+     "Prescreening"
+    ],
+    "summary": "Update Prescreening",
+    "operationId": "update_prescreening_prescreening__vn__patch",
+    "parameters": [
+     {
+      "name": "vn",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Vn"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PrescreeningPayload"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "schemas": {
+  "AppointmentCreate": {
+   "properties": {
+    "hn": {
+     "type": "string",
+     "title": "Hn",
+     "description": "รหัสผู้ป่วย (required)"
+    },
+    "visitdate": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date-time"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Visitdate"
+    },
+    "status": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Status",
+     "default": "pending"
+    },
+    "appointmentdate": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date-time"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Appointmentdate"
+    },
+    "agent_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Agent Id"
+    },
+    "nurse_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Nurse Id"
+    },
+    "height": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Height"
+    },
+    "weight": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Weight"
+    },
+    "bp_systolic": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Bp Systolic"
+    },
+    "bp_diastolic": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Bp Diastolic"
+    },
+    "respiratory_rate": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Respiratory Rate"
+    },
+    "heartrate": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Heartrate"
+    },
+    "body_temp": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Body Temp"
+    },
+    "note": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Note"
+    },
+    "checkout_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date-time"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Checkout Date"
+    },
+    "request": {
+     "anyOf": [
+      {
+       "$ref": "#/components/schemas/VisitRequestPayload"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "type": "object",
+   "required": [
+    "hn"
+   ],
+   "title": "AppointmentCreate"
+  },
+  "ArrivalPayload": {
+   "properties": {
+    "vn": {
+     "type": "string",
+     "title": "Vn"
+    },
+    "agent_id": {
+     "type": "string",
+     "title": "Agent Id"
+    }
+   },
+   "type": "object",
+   "required": [
+    "vn",
+    "agent_id"
+   ],
+   "title": "ArrivalPayload"
+  },
+  "FinishPayload": {
+   "properties": {
+    "vn": {
+     "type": "string",
+     "title": "Vn"
+    },
+    "confirm_no_df": {
+     "type": "boolean",
+     "title": "Confirm No Df",
+     "default": false
+    },
+    "confirmed_by": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Confirmed By"
+    }
+   },
+   "type": "object",
+   "required": [
+    "vn"
+   ],
+   "title": "FinishPayload"
+  },
+  "HTTPValidationError": {
+   "properties": {
+    "detail": {
+     "items": {
+      "$ref": "#/components/schemas/ValidationError"
+     },
+     "type": "array",
+     "title": "Detail"
+    }
+   },
+   "type": "object",
+   "title": "HTTPValidationError"
+  },
+  "PrescreeningPayload": {
+   "properties": {
+    "nurse_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Nurse Id"
+    },
+    "height": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Height"
+    },
+    "weight": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Weight"
+    },
+    "bp_systolic": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Bp Systolic"
+    },
+    "bp_diastolic": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Bp Diastolic"
+    },
+    "respiratory_rate": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Respiratory Rate"
+    },
+    "heartrate": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Heartrate"
+    },
+    "body_temp": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Body Temp"
+    }
+   },
+   "type": "object",
+   "title": "PrescreeningPayload"
+  },
+  "ValidationError": {
+   "properties": {
+    "loc": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "integer"
+       }
+      ]
+     },
+     "type": "array",
+     "title": "Location"
+    },
+    "msg": {
+     "type": "string",
+     "title": "Message"
+    },
+    "type": {
+     "type": "string",
+     "title": "Error Type"
+    },
+    "input": {
+     "title": "Input"
+    },
+    "ctx": {
+     "type": "object",
+     "title": "Context"
+    }
+   },
+   "type": "object",
+   "required": [
+    "loc",
+    "msg",
+    "type"
+   ],
+   "title": "ValidationError"
+  },
+  "VisitRequestCreate": {
+   "properties": {
+    "cheif_complaint": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Cheif Complaint"
+    },
+    "doctor_code": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Doctor Code"
+    },
+    "note": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Note"
+    },
+    "type": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Type"
+    }
+   },
+   "type": "object",
+   "title": "VisitRequestCreate"
+  },
+  "VisitRequestPayload": {
+   "properties": {
+    "vn": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Vn"
+    },
+    "request": {
+     "items": {
+      "$ref": "#/components/schemas/VisitRequestCreate"
+     },
+     "type": "array",
+     "title": "Request"
+    }
+   },
+   "type": "object",
+   "required": [
+    "request"
+   ],
+   "title": "VisitRequestPayload"
+  }
+ }
+}

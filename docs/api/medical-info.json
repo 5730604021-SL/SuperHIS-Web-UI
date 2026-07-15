@@ -1,0 +1,686 @@
+{
+ "module": "medical-info",
+ "note": "Extracted from SuperHIS FastAPI openapi.json. Base URL via Next proxy: /api/his",
+ "paths": {
+  "/medical-info/allergy": {
+   "post": {
+    "tags": [
+     "Medical Info"
+    ],
+    "summary": "Create Allergy",
+    "description": "บันทึกประวัติแพ้ยา — ข้อมูลนี้ถูกใช้เตือนอัตโนมัติตอนหมอสั่งยา (POST /medication)",
+    "operationId": "create_allergy_medical_info_allergy_post",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AllergyCreate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "get": {
+    "tags": [
+     "Medical Info"
+    ],
+    "summary": "Get Allergies",
+    "description": "คืนรายการแพ้ยาทั้งหมดของผู้ป่วย (ใช้ hn จาก GET /patient) — default แสดงเฉพาะรายการ active,\nข้อมูลนี้ถูกใช้เตือนอัตโนมัติตอนสั่งยา (POST /medication) ควรดึงก่อนทุกครั้งที่เปิดหน้าสั่งยา",
+    "operationId": "list_allergies",
+    "parameters": [
+     {
+      "name": "hn",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "description": "HN ผู้ป่วย",
+       "title": "Hn"
+      },
+      "description": "HN ผู้ป่วย"
+     },
+     {
+      "name": "include_inactive",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "boolean",
+       "description": "true = รวมรายการที่ถูกปิด (inactive) ด้วย",
+       "default": false,
+       "title": "Include Inactive"
+      },
+      "description": "true = รวมรายการที่ถูกปิด (inactive) ด้วย"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/medical-info/allergy/{allergy_id}": {
+   "put": {
+    "tags": [
+     "Medical Info"
+    ],
+    "summary": "Update Allergy",
+    "description": "แก้ไขรายการแพ้ยา — ปิดรายการด้วย status=inactive (ไม่มี hard delete เพื่อคง audit trail)",
+    "operationId": "update_allergy_medical_info_allergy__allergy_id__put",
+    "parameters": [
+     {
+      "name": "allergy_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Allergy Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AllergyUpdate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/medical-info/underlying": {
+   "post": {
+    "tags": [
+     "Medical Info"
+    ],
+    "summary": "Create Underlying",
+    "operationId": "create_underlying_medical_info_underlying_post",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/UnderlyingCreate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "get": {
+    "tags": [
+     "Medical Info"
+    ],
+    "summary": "Get Underlyings",
+    "description": "คืนรายการโรคประจำตัวทั้งหมดของผู้ป่วย (ใช้ hn จาก GET /patient) — default แสดงเฉพาะรายการ active,\n1 คนมีได้หลายรายการ ใช้ดูก่อนตรวจหรือก่อนสั่งยาเพื่อประกอบการวินิจฉัย",
+    "operationId": "list_underlying_diseases",
+    "parameters": [
+     {
+      "name": "hn",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "description": "HN ผู้ป่วย",
+       "title": "Hn"
+      },
+      "description": "HN ผู้ป่วย"
+     },
+     {
+      "name": "include_inactive",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "boolean",
+       "description": "true = รวมรายการที่ถูกปิด (inactive) ด้วย",
+       "default": false,
+       "title": "Include Inactive"
+      },
+      "description": "true = รวมรายการที่ถูกปิด (inactive) ด้วย"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/medical-info/underlying/{underlying_id}": {
+   "put": {
+    "tags": [
+     "Medical Info"
+    ],
+    "summary": "Update Underlying",
+    "operationId": "update_underlying_medical_info_underlying__underlying_id__put",
+    "parameters": [
+     {
+      "name": "underlying_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Underlying Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/UnderlyingUpdate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/medical-info/health/{hn}": {
+   "put": {
+    "tags": [
+     "Medical Info"
+    ],
+    "summary": "Upsert Health Info",
+    "description": "บันทึก/แก้ข้อมูลสุขภาพพื้นฐาน — upsert: ยังไม่มี = สร้าง, มีแล้ว = แทนที่ค่าเดิมทั้งชุด",
+    "operationId": "upsert_health_info_medical_info_health__hn__put",
+    "parameters": [
+     {
+      "name": "hn",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Hn"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/HealthInfoUpsert"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "get": {
+    "tags": [
+     "Medical Info"
+    ],
+    "summary": "Get Health Info",
+    "description": "คืนข้อมูลสุขภาพพื้นฐานของผู้ป่วย (หมู่เลือด, Rh, O-Bombae) — 1 ชุดต่อ hn,\nคืน data เป็น null ถ้ายังไม่เคยบันทึก (ไม่ถือเป็น error — คนไข้ใหม่ยังไม่มีข้อมูลได้),\nบันทึก/แก้ไขด้วย PUT /medical-info/health/{hn}",
+    "operationId": "get_health_info",
+    "parameters": [
+     {
+      "name": "hn",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Hn"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/medical-info/summary/{hn}": {
+   "get": {
+    "tags": [
+     "Medical Info"
+    ],
+    "summary": "Get Medical Summary",
+    "description": "เวชระเบียนพื้นฐานครบชุดในคำขอเดียว: แพ้ยา (active) + โรคประจำตัว (active) + ข้อมูลสุขภาพ —\nใช้สำหรับหน้าจอหมอ/prescreening ที่ต้องการข้อมูลพร้อมกันในคำขอเดียว แทนการเรียก 3 endpoint แยก,\nแพ้ยาและโรคประจำตัวคืนเฉพาะ active เสมอ (ไม่มี option include_inactive)",
+    "operationId": "get_medical_summary",
+    "parameters": [
+     {
+      "name": "hn",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Hn"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "schemas": {
+  "AllergyCreate": {
+   "properties": {
+    "hn": {
+     "type": "string",
+     "title": "Hn",
+     "description": "HN ผู้ป่วย (required)"
+    },
+    "drug_code": {
+     "type": "string",
+     "title": "Drug Code",
+     "description": "รหัสยา/กลุ่มยาที่แพ้ — ให้ใช้ default_code ของยาใน Odoo หรือ drug_category_code เพื่อให้ระบบเตือนตอนสั่งยา (POST /medication) จับ match ได้อัตโนมัติ"
+    },
+    "symptom": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Symptom",
+     "description": "อาการที่แพ้ เช่น ผื่นขึ้น หายใจลำบาก"
+    },
+    "type": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Type",
+     "description": "ประเภทการแพ้ เช่น drug / food / other"
+    },
+    "note": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Note",
+     "description": "หมายเหตุ"
+    }
+   },
+   "type": "object",
+   "required": [
+    "hn",
+    "drug_code"
+   ],
+   "title": "AllergyCreate"
+  },
+  "AllergyUpdate": {
+   "properties": {
+    "drug_code": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Drug Code"
+    },
+    "symptom": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Symptom"
+    },
+    "type": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Type"
+    },
+    "note": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Note"
+    },
+    "status": {
+     "anyOf": [
+      {
+       "type": "string",
+       "enum": [
+        "active",
+        "inactive"
+       ]
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Status",
+     "description": "inactive = ปิดรายการ (soft delete — ไม่ลบข้อมูลแพ้ยาจริงเพื่อคง audit trail)"
+    }
+   },
+   "type": "object",
+   "title": "AllergyUpdate"
+  },
+  "HTTPValidationError": {
+   "properties": {
+    "detail": {
+     "items": {
+      "$ref": "#/components/schemas/ValidationError"
+     },
+     "type": "array",
+     "title": "Detail"
+    }
+   },
+   "type": "object",
+   "title": "HTTPValidationError"
+  },
+  "HealthInfoUpsert": {
+   "properties": {
+    "blood_type": {
+     "type": "integer",
+     "title": "Blood Type",
+     "description": "รหัสกรุ๊ปเลือด (ตามรหัสที่ frontend กำหนด)"
+    },
+    "rh": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Rh",
+     "description": "Rh factor เช่น + / -"
+    },
+    "o_bombae": {
+     "type": "boolean",
+     "title": "O Bombae",
+     "description": "หมู่เลือด Bombay (โอบอมเบย์)",
+     "default": false
+    }
+   },
+   "type": "object",
+   "required": [
+    "blood_type"
+   ],
+   "title": "HealthInfoUpsert",
+   "description": "ข้อมูลสุขภาพพื้นฐาน 1 ชุดต่อคนไข้ (PK = hn) — บันทึกซ้ำ = แทนที่ค่าเดิมทั้งชุด"
+  },
+  "UnderlyingCreate": {
+   "properties": {
+    "hn": {
+     "type": "string",
+     "title": "Hn",
+     "description": "HN ผู้ป่วย (required)"
+    },
+    "detail": {
+     "type": "string",
+     "title": "Detail",
+     "description": "โรคประจำตัว เช่น เบาหวาน ความดันโลหิตสูง ตั้งครรภ์"
+    }
+   },
+   "type": "object",
+   "required": [
+    "hn",
+    "detail"
+   ],
+   "title": "UnderlyingCreate"
+  },
+  "UnderlyingUpdate": {
+   "properties": {
+    "detail": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Detail"
+    },
+    "status": {
+     "anyOf": [
+      {
+       "type": "string",
+       "enum": [
+        "active",
+        "inactive"
+       ]
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Status",
+     "description": "inactive = ปิดรายการ (soft delete)"
+    }
+   },
+   "type": "object",
+   "title": "UnderlyingUpdate"
+  },
+  "ValidationError": {
+   "properties": {
+    "loc": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "integer"
+       }
+      ]
+     },
+     "type": "array",
+     "title": "Location"
+    },
+    "msg": {
+     "type": "string",
+     "title": "Message"
+    },
+    "type": {
+     "type": "string",
+     "title": "Error Type"
+    },
+    "input": {
+     "title": "Input"
+    },
+    "ctx": {
+     "type": "object",
+     "title": "Context"
+    }
+   },
+   "type": "object",
+   "required": [
+    "loc",
+    "msg",
+    "type"
+   ],
+   "title": "ValidationError"
+  }
+ }
+}

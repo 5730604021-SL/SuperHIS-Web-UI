@@ -1,0 +1,788 @@
+{
+ "module": "unit-inventory",
+ "note": "Extracted from SuperHIS FastAPI openapi.json. Base URL via Next proxy: /api/his",
+ "paths": {
+  "/unit-inventory/uom": {
+   "get": {
+    "tags": [
+     "Unit Inventory"
+    ],
+    "summary": "Get Uom List",
+    "description": "ดูรายการ Unit of Measure (uom.uom) ทั้งหมดจาก Odoo — ใช้สำหรับหา uom_id ก่อนเรียก /transfers หรือ /stock/deduct\nข้อมูลมาสดจาก Odoo ทุกครั้ง ไม่มี cache",
+    "operationId": "list_uom",
+    "parameters": [
+     {
+      "name": "category_name",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตามชื่อ UoM category เช่น Clinical Volume",
+       "title": "Category Name"
+      },
+      "description": "กรองตามชื่อ UoM category เช่น Clinical Volume"
+     },
+     {
+      "name": "sort_by",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "description": "field ที่ใช้ sort: factor, id, name, uom_type",
+       "default": "id",
+       "title": "Sort By"
+      },
+      "description": "field ที่ใช้ sort: factor, id, name, uom_type"
+     },
+     {
+      "name": "sort_order",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "enum": [
+        "asc",
+        "desc"
+       ],
+       "type": "string",
+       "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย",
+       "default": "desc",
+       "title": "Sort Order"
+      },
+      "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/unit-inventory/picking-types": {
+   "get": {
+    "tags": [
+     "Unit Inventory"
+    ],
+    "summary": "Get Picking Types",
+    "description": "ดู stock.picking.type ทั้งหมดใน Odoo — ใช้สำหรับ debug และตรวจสอบว่ามี operation type \"internal\" อยู่หรือไม่\nข้อมูลมาสดจาก Odoo ไม่มี filter ใดๆ (คืนทุก type รวมถึง incoming/outgoing)",
+    "operationId": "list_picking_types",
+    "parameters": [
+     {
+      "name": "sort_by",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "description": "field ที่ใช้ sort: code, id, name",
+       "default": "id",
+       "title": "Sort By"
+      },
+      "description": "field ที่ใช้ sort: code, id, name"
+     },
+     {
+      "name": "sort_order",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "enum": [
+        "asc",
+        "desc"
+       ],
+       "type": "string",
+       "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย",
+       "default": "desc",
+       "title": "Sort Order"
+      },
+      "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/unit-inventory/locations": {
+   "post": {
+    "tags": [
+     "Unit Inventory"
+    ],
+    "summary": "Create Location",
+    "operationId": "create_location_unit_inventory_locations_post",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CreateLocationPayload"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "get": {
+    "tags": [
+     "Unit Inventory"
+    ],
+    "summary": "Get Locations",
+    "description": "ดูรายการ stock.location ประเภท internal ที่ active ทั้งหมดจาก Odoo — ใช้หา location_id สำหรับ /transfers และ /stock\nกรอง usage=internal และ active=True ไว้เสมอ (ไม่แสดง virtual/customer/supplier location)\nข้อมูลมาสดจาก Odoo",
+    "operationId": "list_stock_locations",
+    "parameters": [
+     {
+      "name": "name",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตามชื่อ location แบบ partial match (ค้นจาก complete_name เช่น 'Ward A', 'ICU')",
+       "title": "Name"
+      },
+      "description": "กรองตามชื่อ location แบบ partial match (ค้นจาก complete_name เช่น 'Ward A', 'ICU')"
+     },
+     {
+      "name": "sort_by",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "description": "field ที่ใช้ sort: complete_name, id, name",
+       "default": "id",
+       "title": "Sort By"
+      },
+      "description": "field ที่ใช้ sort: complete_name, id, name"
+     },
+     {
+      "name": "sort_order",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "enum": [
+        "asc",
+        "desc"
+       ],
+       "type": "string",
+       "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย",
+       "default": "desc",
+       "title": "Sort Order"
+      },
+      "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/unit-inventory/transfers": {
+   "get": {
+    "tags": [
+     "Unit Inventory"
+    ],
+    "summary": "Get Transfers",
+    "description": "ดูรายการ internal transfer (stock.picking) จาก Odoo พร้อม stock.move รายสินค้าใน field items\nกรองเฉพาะ picking_type_code=internal เสมอ (ไม่แสดง receipt/delivery)\nข้อมูลมาสดจาก Odoo, default แสดง 20 รายการล่าสุดตาม scheduled_date",
+    "operationId": "list_stock_transfers",
+    "parameters": [
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 100,
+       "description": "จำนวนรายการสูงสุดที่คืนต่อครั้ง",
+       "default": 20,
+       "title": "Limit"
+      },
+      "description": "จำนวนรายการสูงสุดที่คืนต่อครั้ง"
+     },
+     {
+      "name": "offset",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "description": "จำนวนรายการที่ข้ามจากต้นรายการ (ใช้แบ่งหน้า)",
+       "default": 0,
+       "title": "Offset"
+      },
+      "description": "จำนวนรายการที่ข้ามจากต้นรายการ (ใช้แบ่งหน้า)"
+     },
+     {
+      "name": "state",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "draft | confirmed | assigned | done | cancel",
+       "title": "State"
+      },
+      "description": "draft | confirmed | assigned | done | cancel"
+     },
+     {
+      "name": "from_location_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม location ต้นทาง (Odoo stock.location id) — exact match",
+       "title": "From Location Id"
+      },
+      "description": "กรองตาม location ต้นทาง (Odoo stock.location id) — exact match"
+     },
+     {
+      "name": "to_location_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม location ปลายทาง (Odoo stock.location id) — exact match",
+       "title": "To Location Id"
+      },
+      "description": "กรองตาม location ปลายทาง (Odoo stock.location id) — exact match"
+     },
+     {
+      "name": "sort_by",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "description": "field ที่ใช้ sort: date_done, id, name, scheduled_date, state",
+       "default": "scheduled_date",
+       "title": "Sort By"
+      },
+      "description": "field ที่ใช้ sort: date_done, id, name, scheduled_date, state"
+     },
+     {
+      "name": "sort_order",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "enum": [
+        "asc",
+        "desc"
+       ],
+       "type": "string",
+       "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย",
+       "default": "desc",
+       "title": "Sort Order"
+      },
+      "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "tags": [
+     "Unit Inventory"
+    ],
+    "summary": "Create Transfer",
+    "description": "สร้างและ validate internal transfer ทันที → ตัด stock ต้นทาง เพิ่ม stock ปลายทาง\n\nหากส่ง uom_id ใน item Odoo จะแปลงหน่วยให้อัตโนมัติ\nเช่น ส่ง quantity=100, uom_id=<cc> แต่ product เก็บเป็น bottle (100cc) → Odoo ตัด 1 bottle",
+    "operationId": "create_transfer_unit_inventory_transfers_post",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CreateTransferPayload"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/unit-inventory/transfers/{transfer_id}/cancel": {
+   "post": {
+    "tags": [
+     "Unit Inventory"
+    ],
+    "summary": "Cancel Transfer",
+    "operationId": "cancel_transfer_unit_inventory_transfers__transfer_id__cancel_post",
+    "parameters": [
+     {
+      "name": "transfer_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Transfer Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/unit-inventory/stock": {
+   "get": {
+    "tags": [
+     "Unit Inventory"
+    ],
+    "summary": "Get Unit Stock",
+    "description": "ดู stock ระดับ unit/ward จาก stock.quant — quantity อยู่ในหน่วย UoM ของ product (uom_id แนบมาในผลลัพธ์)\nกรองเฉพาะ location ประเภท internal เสมอ ถ้าไม่ระบุ location_id จะคืน stock ทุก ward\nข้อมูลมาสดจาก Odoo ไม่มี cache",
+    "operationId": "get_unit_stock",
+    "parameters": [
+     {
+      "name": "location_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม Ward location id (Odoo stock.location id) — exact match",
+       "title": "Location Id"
+      },
+      "description": "กรองตาม Ward location id (Odoo stock.location id) — exact match"
+     },
+     {
+      "name": "product_template_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "description": "กรองตาม product.template id — exact match",
+       "title": "Product Template Id"
+      },
+      "description": "กรองตาม product.template id — exact match"
+     },
+     {
+      "name": "sort_by",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "description": "field ที่ใช้ sort: available_quantity, id, quantity, reserved_quantity",
+       "default": "id",
+       "title": "Sort By"
+      },
+      "description": "field ที่ใช้ sort: available_quantity, id, quantity, reserved_quantity"
+     },
+     {
+      "name": "sort_order",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "enum": [
+        "asc",
+        "desc"
+       ],
+       "type": "string",
+       "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย",
+       "default": "desc",
+       "title": "Sort Order"
+      },
+      "description": "ทิศทางการเรียง: asc = น้อยไปมาก, desc = มากไปน้อย"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/unit-inventory/stock/deduct": {
+   "post": {
+    "tags": [
+     "Unit Inventory"
+    ],
+    "summary": "Deduct Unit Stock",
+    "description": "ตัด stock ของ ward ผ่าน stock.quant inventory adjustment\n\nหากส่ง uom_id ที่ต่างจาก UoM ของ product จะแปลงหน่วยก่อนตัด\nเช่น quantity=40, uom_id=<cc> แต่ product เก็บเป็น bottle(100cc) → ตัด 0.4 bottle",
+    "operationId": "deduct_unit_stock_unit_inventory_stock_deduct_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DeductUnitStockPayload"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "schemas": {
+  "CreateLocationPayload": {
+   "properties": {
+    "name": {
+     "type": "string",
+     "title": "Name",
+     "description": "ชื่อ location เช่น Ward A, ICU, OPD"
+    },
+    "parent_location_id": {
+     "type": "integer",
+     "title": "Parent Location Id",
+     "description": "Odoo location id ของ parent"
+    }
+   },
+   "type": "object",
+   "required": [
+    "name",
+    "parent_location_id"
+   ],
+   "title": "CreateLocationPayload"
+  },
+  "CreateTransferPayload": {
+   "properties": {
+    "from_location_id": {
+     "type": "integer",
+     "title": "From Location Id",
+     "description": "Location ต้นทาง (เช่น คลังยากลาง)"
+    },
+    "to_location_id": {
+     "type": "integer",
+     "title": "To Location Id",
+     "description": "Location ปลายทาง (เช่น Ward A)"
+    },
+    "items": {
+     "items": {
+      "$ref": "#/components/schemas/TransferItem"
+     },
+     "type": "array",
+     "minItems": 1,
+     "title": "Items"
+    }
+   },
+   "type": "object",
+   "required": [
+    "from_location_id",
+    "to_location_id",
+    "items"
+   ],
+   "title": "CreateTransferPayload"
+  },
+  "DeductUnitStockPayload": {
+   "properties": {
+    "location_id": {
+     "type": "integer",
+     "title": "Location Id",
+     "description": "Odoo stock.location id (Ward)"
+    },
+    "product_template_id": {
+     "type": "integer",
+     "title": "Product Template Id",
+     "description": "Odoo product.template id"
+    },
+    "quantity": {
+     "type": "number",
+     "exclusiveMinimum": 0.0,
+     "title": "Quantity",
+     "description": "จำนวนที่ต้องการตัด"
+    },
+    "uom_id": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Uom Id",
+     "description": "UoM id ของ quantity ที่ส่งมา — ถ้าไม่ส่ง จะใช้ UoM ของ product"
+    }
+   },
+   "type": "object",
+   "required": [
+    "location_id",
+    "product_template_id",
+    "quantity"
+   ],
+   "title": "DeductUnitStockPayload"
+  },
+  "HTTPValidationError": {
+   "properties": {
+    "detail": {
+     "items": {
+      "$ref": "#/components/schemas/ValidationError"
+     },
+     "type": "array",
+     "title": "Detail"
+    }
+   },
+   "type": "object",
+   "title": "HTTPValidationError"
+  },
+  "TransferItem": {
+   "properties": {
+    "product_template_id": {
+     "type": "integer",
+     "title": "Product Template Id",
+     "description": "Odoo product.template id"
+    },
+    "quantity": {
+     "type": "number",
+     "exclusiveMinimum": 0.0,
+     "title": "Quantity",
+     "description": "จำนวนที่ต้องการโอน"
+    },
+    "uom_id": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Uom Id",
+     "description": "UoM id — ถ้าไม่ส่ง จะใช้ UoM ของ product (Odoo แปลงหน่วยให้อัตโนมัติ)"
+    }
+   },
+   "type": "object",
+   "required": [
+    "product_template_id",
+    "quantity"
+   ],
+   "title": "TransferItem"
+  },
+  "ValidationError": {
+   "properties": {
+    "loc": {
+     "items": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "integer"
+       }
+      ]
+     },
+     "type": "array",
+     "title": "Location"
+    },
+    "msg": {
+     "type": "string",
+     "title": "Message"
+    },
+    "type": {
+     "type": "string",
+     "title": "Error Type"
+    },
+    "input": {
+     "title": "Input"
+    },
+    "ctx": {
+     "type": "object",
+     "title": "Context"
+    }
+   },
+   "type": "object",
+   "required": [
+    "loc",
+    "msg",
+    "type"
+   ],
+   "title": "ValidationError"
+  }
+ }
+}
